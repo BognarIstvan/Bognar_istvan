@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Ork szimulátor · Csicsó, első műszak</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="game" aria-label="Csicsó bejárható játéktérképe"></canvas>
+  <div id="hud" hidden>
+    <header class="topbar"><div class="brand"><img src="assets/csicso-cimer.jpg" alt="Csicsó címere"><span>CSICSÓ<small>ORK SZIMULÁTOR</small></span></div>
+      <div class="stats"><div title="Visszaváltható palackok"><i>♧</i><span id="bottles">0 / 12</span><small>PALACK</small></div><div><i>€</i><span id="cash">0,00</span><small>APRÓ</small></div><div><i>▰</i><span id="butts">0</span><small>CSIKK</small></div><div><i>♜</i><span id="wine">0</span><small>CSUCSÓ</small></div></div>
+      <button id="pauseButton" class="iconbutton" title="Szünet / súgó (Esc)">Ⅱ</button></header>
+    <aside class="quest"><span class="eyebrow">01 / AZ ELSŐ MŰSZAK</span><h2>Ülésezik a Parlament</h2><p id="questText">Gyűjts palackot, és váltsd vissza a Jednotában.</p><div class="progress"><span id="progress"></span></div><div class="questfooter"><span id="delivered">0 / 3 csucsó leszállítva</span><span>0,15 € / palack</span></div><p class="hint" id="sidequest">Mellékküldetés: 5 csikkből sodrás a Parlamentnél.</p></aside>
+    <div id="zone"><span>●</span> <span id="zoneName">A Parlament</span></div>
+    <div id="buff" hidden></div>
+    <div id="toast" role="status" aria-live="polite"></div>
+    <div class="bottomleft"><button id="mapButton">M <span>Térkép</span></button><button id="soundButton" aria-label="Hang bekapcsolása">♪ <span>Hang: ki</span></button><span id="saveStatus">Automatikus mentés</span></div>
+    <div id="interact" hidden><span id="interactText"></span><button id="interactButton">E <span>Használat</span></button></div>
+    <div id="bikeTag" hidden>BRINGÁN · B: leszállás</div>
+    <div id="touchControls"><div class="dpad"><button data-key="arrowup">▲</button><button data-key="arrowleft">◀</button><button data-key="arrowdown">▼</button><button data-key="arrowright">▶</button></div><button id="touchBike">B<br><small>BRINGA</small></button></div>
+  </div>
+  <section id="start" class="screen start"><div class="startshade"></div><div class="startcontent"><span class="eyebrow">EGY TELJESEN KOMOLYTALAN FALUSI KALAND</span><h1>ORK<br><em>SZIMULÁTOR</em></h1><p class="subtitle">Csicsó. Egy szatyor. Nagy tervek.</p><div class="introcard"><span class="chapter">ELSŐ PÁLYA</span><h2>Ülésezik a Parlament</h2><p>A képviselők szomjasak. Gyűjts visszaváltható palackokat, térj be a Jednotába, és hozz <strong>3 üveg csucsót</strong> a kiülőhöz. A Lion mélyén is akad zsákmány…</p><div class="startactions"><button id="newGame" class="primary">Induljon a műszak <span>→</span></button><button id="continueGame" hidden>Folytatás</button></div><div class="keys"><span><kbd>W A S D</kbd> mozgás</span><span><kbd>E</kbd> használat</span><span><kbd>B</kbd> bringa</span><span><kbd>M</kbd> térkép</span></div></div><small class="fiction">Rajzolt, kitalált orkfigurák · Stilizált Csicsó · Időkorlát nélkül</small></div><div class="artcredit">A PARLAMENT<br><span>Innen indul minden nagy ötlet.</span></div></section>
+  <div id="modalBackdrop" class="backdrop" hidden><section id="modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><button id="closeModal" class="close" aria-label="Bezárás">×</button><span id="modalEyebrow" class="eyebrow"></span><h2 id="modalTitle"></h2><div id="modalBody"></div><div id="modalActions"></div></section></div>
+  <script src="map-data.js"></script>
+  <script src="game.js"></script>
+</body></html>

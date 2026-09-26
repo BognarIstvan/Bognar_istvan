@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1c1711">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Csicsói kaland · Ork szimulátor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stage">
+    <canvas id="screen" aria-label="Játéktér"></canvas>
+    <div id="hud" hidden>
+      <div class="hud-main">
+        <div class="hud-group">
+          <span class="chip energy" title="Erőnlét"><span class="bar"><i id="energyBar"></i></span></span>
+          <span class="chip" title="Palack a szatyorban"><img id="icoBottle" alt="Palack"><b id="bottles">0/12</b></span>
+          <span class="chip" title="Pénz"><b id="cash">0,00 €</b></span>
+        </div>
+        <div class="hud-group">
+          <span class="chip day" id="dayChip">Hétfő</span>
+          <button id="pauseBtn" class="chip icon" aria-label="Szünet">❚❚</button>
+        </div>
+      </div>
+      <div class="hud-sub">
+        <span class="mini" title="Csikk"><img id="icoButt" alt="Csikk"><b id="butts">0</b></span>
+        <span class="mini" title="Cigipapír"><img id="icoPaper" alt="Cigipapír"><b id="paper">1</b></span>
+        <span class="mini" title="Sodrás"><img id="icoCig" alt="Sodrás"><b id="cigs">0</b></span>
+        <span class="mini" title="Csucsó a szatyorban"><img id="icoWine" alt="Csucsó"><b id="wine">0</b></span>
+        <span class="mini goal" id="goalLine">Parlament: 0/3 csucsó</span>
+      </div>
+    </div>
+    <div id="tip" hidden></div>
+    <div id="toast" role="status"></div>
+  </div>
+
+  <div id="pad" hidden>
+    <p class="pad-hint">Fektetve nagyobb a kép.</p>
+    <div class="pad-row">
+      <div class="cluster">
+        <button data-k="left" aria-label="Balra">◀</button>
+        <button data-k="right" aria-label="Jobbra">▶</button>
+      </div>
+      <div class="cluster right">
+        <div class="stack">
+          <button data-k="run" id="runBtn">FUT</button>
+          <button data-k="smoke" id="smokeBtn">FÜST</button>
+        </div>
+        <button data-k="jump" class="big">UGRÁS</button>
+      </div>
+    </div>
+  </div>
+
+  <section id="title" class="screen">
+    <div class="card">
+      <p class="kicker">ORK SZIMULÁTOR</p>
+      <h1>Csicsói kaland</h1>
+      <p class="sub">Palackot gyűjtesz, a Jednotában beváltod, és három csucsót viszel a Parlamentnek.</p>
+      <div class="day-pick">
+        <button id="dayPrev" aria-label="Előző nap">◀</button>
+        <div><small>Mai nap</small><strong id="dayName">Hétfő</strong></div>
+        <button id="dayNext" aria-label="Következő nap">▶</button>
+      </div>
+      <p id="dayNote" class="note"></p>
+      <button id="continueBtn" class="primary" hidden>Folytatás</button>
+      <button id="startBtn" class="primary">Új játék</button>
+      <div class="row">
+        <button id="soundBtn">Hang: be</button>
+        <button id="fsBtn" hidden>Teljes képernyő</button>
+      </div>
+      <p class="keys">Telefonon fektetve a legjobb. Gépen: ← → mozgás, szóköz ugrás, Shift futás, F füst, P szünet.</p>
+    </div>
+  </section>
+
+  <section id="intro" class="screen" hidden>
+    <div class="card">
+      <p class="kicker" id="introNo">1-1</p>
+      <h2 id="introName">Parlament → Jednota</h2>
+      <p class="day-line"><strong id="introDay">Hétfő</strong></p>
+      <p class="note speaker" id="introNote"></p>
+      <p class="sub" id="introInv"></p>
+      <button id="goBtn" class="primary">Indulás!</button>
+    </div>
+  </section>
+
+  <section id="pause" class="screen" hidden>
+    <div class="card">
+      <h2>Szünet</h2>
+      <button id="resumeBtn" class="primary">Folytatás</button>
+      <button id="restartBtn">Pálya újrakezdése</button>
+      <button id="menuBtn">Címlap</button>
+    </div>
+  </section>
+
+  <section id="shop" class="screen" hidden>
+    <div class="card">
+      <p class="kicker">COOP JEDNOTA · VISSZAVÁLTÁS ÉS BEVÁSÁRLÁS</p>
+      <h2>A Jednotában</h2>
+      <p class="sub">A palackautomata készen áll. A csucsó a legalsó polcon vár.</p>
+      <div class="balance" id="shopCash">0,00 €</div>
+      <div class="stock" id="shopStock"></div>
+      <div class="actions" id="shopActions"></div>
+      <button id="shopDone" class="primary">Irány a Parlament →</button>
+    </div>
+  </section>
+
+  <section id="parliament" class="screen" hidden>
+    <div class="card">
+      <p class="kicker">A KIÜLŐ · FŐHADISZÁLLÁS</p>
+      <h2>Ülésezik a Parlament</h2>
+      <p class="sub" id="parlText"></p>
+      <div class="progress"><i id="parlBar"></i></div>
+      <div class="stock" id="parlStock"></div>
+      <div class="actions" id="parlActions"></div>
+      <button id="parlDone" class="primary">A műszak vége</button>
+    </div>
+  </section>
+
+  <section id="win" class="screen" hidden>
+    <div class="card">
+      <p class="kicker">JEGYZŐKÖNYV</p>
+      <h2>A határozat elfogadva!</h2>
+      <p class="sub" id="winText">Megérkezett a három csucsó, az esti ülés határozatképes.</p>
+      <button id="winNext" class="primary">Új műszak, holnap</button>
+      <button id="winMenu">Címlap</button>
+    </div>
+  </section>
+
+  <section id="nextday" class="screen" hidden>
+    <div class="card">
+      <p class="kicker">A MŰSZAK VÉGE</p>
+      <h2>Holnap folytatod</h2>
+      <p class="sub" id="nextText"></p>
+      <button id="nextGo" class="primary">Új műszak, holnap</button>
+      <button id="nextMenu">Címlap</button>
+    </div>
+  </section>
+
+  <script src="js/levels.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/backgrounds.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
