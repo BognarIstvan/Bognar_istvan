@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1c1711">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Csicsói kaland · Ork szimulátor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="stage">
+    <canvas id="screen" aria-label="Játéktér"></canvas>
+    <div id="hud" hidden>
+      <div class="hud-group">
+        <span class="chip" title="Csucsó = élet"><img id="icoLife" alt="Csucsó"><b id="lives">3</b></span>
+        <span class="chip" title="Palackok"><img id="icoBottle" alt="Palack"><b id="bottles">0</b></span>
+      </div>
+      <div class="hud-group">
+        <span class="chip day" id="dayChip">Hétfő</span>
+        <button id="pauseBtn" class="chip icon" aria-label="Szünet">❚❚</button>
+      </div>
+    </div>
+    <div id="tip" hidden></div>
+    <div id="toast" role="status"></div>
+  </div>
+
+  <div id="pad" hidden>
+    <p class="pad-hint">Fektetve nagyobb a kép.</p>
+    <div class="pad-row">
+      <div class="cluster">
+        <button data-k="left" aria-label="Balra">◀</button>
+        <button data-k="right" aria-label="Jobbra">▶</button>
+      </div>
+      <div class="cluster right">
+        <button data-k="run" id="runBtn">FUT</button>
+        <button data-k="jump" class="big">UGRÁS</button>
+      </div>
+    </div>
+  </div>
+
+  <section id="title" class="screen">
+    <div class="card">
+      <p class="kicker">ORK SZIMULÁTOR</p>
+      <h1>Csicsói kaland</h1>
+      <p class="sub">Palackok, kukák, vaddisznók. Egy műszak a Parlamenttől a Jednotáig.</p>
+      <div class="day-pick">
+        <button id="dayPrev" aria-label="Előző nap">◀</button>
+        <div><small>Mai nap</small><strong id="dayName">Hétfő</strong></div>
+        <button id="dayNext" aria-label="Következő nap">▶</button>
+      </div>
+      <p id="dayNote" class="note"></p>
+      <button id="startBtn" class="primary">Játék indítása</button>
+      <div class="row">
+        <button id="soundBtn">Hang: be</button>
+        <button id="fsBtn" hidden>Teljes képernyő</button>
+      </div>
+      <p class="keys">Telefonon fektetve a legjobb. Gépen: ← → mozgás, szóköz ugrás, Shift futás, P szünet.</p>
+    </div>
+  </section>
+
+  <section id="intro" class="screen" hidden>
+    <div class="card">
+      <p class="kicker" id="introNo">1-1</p>
+      <h2 id="introName">Parlament → Jednota</h2>
+      <p class="day-line"><strong id="introDay">Hétfő</strong></p>
+      <p class="note speaker" id="introNote"></p>
+      <p class="sub" id="introLives"></p>
+      <button id="goBtn" class="primary">Indulás!</button>
+    </div>
+  </section>
+
+  <section id="pause" class="screen" hidden>
+    <div class="card">
+      <h2>Szünet</h2>
+      <button id="resumeBtn" class="primary">Folytatás</button>
+      <button id="restartBtn">Pálya újrakezdése</button>
+      <button id="menuBtn">Címlap</button>
+    </div>
+  </section>
+
+  <section id="over" class="screen" hidden>
+    <div class="card">
+      <p class="kicker">VÉGE A MŰSZAKNAK</p>
+      <h2>Elfogyott a csucsó</h2>
+      <p class="sub">Holnap új nap. Más napon mások a kukák is.</p>
+      <button id="againBtn" class="primary">Újra, holnap</button>
+      <button id="overMenuBtn">Címlap</button>
+    </div>
+  </section>
+
+  <section id="tally" class="screen" hidden>
+    <div class="card">
+      <p class="kicker">COOP JEDNOTA · VISSZAVÁLTÓ AUTOMATA</p>
+      <h2>Beváltás</h2>
+      <div class="tally-row">
+        <div><img id="tBottleIco" alt=""><b id="tBottles">0</b><small>palack</small></div>
+        <span class="arrow">→</span>
+        <div><img id="tLifeIco" alt=""><b id="tLives">0</b><small>csucsó</small></div>
+      </div>
+      <p class="sub" id="tallyNote">Minden 5 palackért egy csucsó.</p>
+      <p class="note">Hamarosan: 1-2 Főtér és iskola.</p>
+      <button id="nextBtn" class="primary" hidden>Újra, holnap</button>
+      <button id="tallyMenuBtn" hidden>Címlap</button>
+    </div>
+  </section>
+
+  <script src="js/levels.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/backgrounds.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
