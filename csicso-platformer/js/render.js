@@ -75,10 +75,14 @@
       ctx.drawImage(b.used ? S.crateUsed : S.crate, bx, by - Math.round(Math.sin(b.bump * Math.PI) * 4));
     }
     const glint = Math.floor(s.time * 4) % 4 === 0;
-    for (const c of s.coins) if (!c.taken && vis(c)) ctx.drawImage(glint ? S.bottle2 : S.bottle, c.x, Math.round(c.y + Math.sin(s.time * 3 + c.x) * 0.8));
+    for (const c of s.coins) {
+      if (c.taken || !vis(c)) continue;
+      if (c.kind === 'butt') ctx.drawImage(S.butt, c.x, c.y);
+      else ctx.drawImage(glint ? S.bottle2 : S.bottle, c.x, Math.round(c.y + Math.sin(s.time * 3 + c.x) * 0.8));
+    }
     for (const b of s.loose) {
       if (b.ttl < 1 && Math.floor(b.ttl * 12) % 2) continue;
-      sprite(ctx, S.bottle, b.x, b.y);
+      sprite(ctx, b.kind === 'butt' ? S.butt : S.bottle, b.x, b.y);
     }
     for (const it of s.items) {
       const img = S[it.type];
@@ -93,10 +97,10 @@
     for (const e of s.enemies) {
       if (!vis(e) || (!e.active && e.alive)) continue;
       if (e.kind === 'boar') {
-        const f = S.boar[Math.floor((e.walk || 0) * 6) % 2];
+        const f = S.boar[e.stun > 0 ? 0 : Math.floor((e.walk || 0) * 6) % 2];
         sprite(ctx, f, e.x - 1, e.y, e.vx > 0, !e.alive);
       } else {
-        const f = S.magpie[Math.floor(s.time * 9 + e.x) % 2];
+        const f = S.magpie[e.stun > 0 ? 1 : Math.floor(s.time * 9 + e.x) % 2];
         sprite(ctx, f, e.x - 1, e.y, e.vx > 0, !e.alive);
         if (e.carry) sprite(ctx, S.bottle, e.x + (e.vx > 0 ? 2 : 8), e.y + 6);
       }
@@ -104,8 +108,19 @@
 
     drawPlayer(ctx, s, S);
 
+    // sodrás füstje
+    for (const c of s.clouds) {
+      const a = Math.min(1, c.life / 1.2) * 0.75;
+      for (let i = 0; i < 6; i++) {
+        const ang = i * 1.05 + s.time * 0.8, rr = c.r * 0.55;
+        ctx.fillStyle = `rgba(${i % 2 ? 214 : 236},${i % 2 ? 214 : 234},${i % 2 ? 206 : 226},${a})`;
+        ctx.beginPath(); ctx.arc(Math.round(c.x + Math.cos(ang) * rr * 0.6), Math.round(c.y + Math.sin(ang) * rr * 0.4), Math.round(rr), 0, 7); ctx.fill();
+      }
+    }
+
     for (const q of s.particles) {
       if (q.kind === 'coinpop') { sprite(ctx, S.bottle, q.x, q.y); continue; }
+      if (q.kind === 'paperpop') { sprite(ctx, S.paper, q.x, q.y); continue; }
       if (q.kind === 'smoke') { if (q.life > 0.5) { ctx.fillStyle = q.life > 1 ? '#e2e2da' : '#bfc0b8'; ctx.fillRect(Math.round(q.x), Math.round(q.y), 1, 1); } continue; }
       if (q.kind === 'bubble') { ctx.strokeStyle = '#dff4ff'; ctx.lineWidth = 1; ctx.strokeRect(Math.round(q.x) + 0.5, Math.round(q.y) + 0.5, 2, 2); continue; }
       ctx.fillStyle = q.color; ctx.fillRect(Math.round(q.x), Math.round(q.y), 1, 1);
@@ -133,7 +148,8 @@
     const flip = p.face < 0;
     const tilt = p.tipsy > 0 ? Math.round(Math.sin(s.time * 4)) : 0;
     sprite(ctx, frame, sx + tilt, sy, flip);
-    if (p.bag) sprite(ctx, S.handBag, flip ? sx - 3 : sx + 12, sy + 12, flip);
+    const bag = s.inv.capacity > 12 ? S.bigBag : S.handBag;
+    sprite(ctx, bag, flip ? sx - bag.width + 4 : sx + 12, sy + 12, flip);
   }
 
   CS.Render = { prepareLevel, drawGame };

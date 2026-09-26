@@ -41,6 +41,10 @@
     hic: () => { const t = ac.currentTime; tone(300, t, 0.07, 'triangle', 0.08, 520); tone(280, t + 0.35, 0.07, 'triangle', 0.08, 500); },
     goal: () => seq([523, 659, 784, 1047, 784, 1047, 1319], 0.1, 'square', 0.04),
     tally: () => tone(1175, ac.currentTime, 0.05, 'square', 0.03),
+    butt: () => tone(700, ac.currentTime, 0.05, 'triangle', 0.05),
+    puff: () => { const t = ac.currentTime; tone(160, t, 0.35, 'sawtooth', 0.025, 60); tone(90, t, 0.4, 'triangle', 0.05, 50); },
+    splash: () => { const t = ac.currentTime; tone(600, t, 0.25, 'sawtooth', 0.03, 120); tone(300, t + 0.05, 0.3, 'triangle', 0.05, 80); },
+    cash: () => seq([1319, 1568, 2093], 0.05, 'square', 0.03),
   };
 
   A.play = function (name) {

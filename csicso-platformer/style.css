@@ -24,10 +24,22 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 /* HUD */
 #hud {
-  position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; gap: 8px;
+  position: absolute; left: 0; right: 0; top: 0; display: flex; flex-direction: column; gap: 5px;
   padding: calc(env(safe-area-inset-top, 0px) + 8px) calc(env(safe-area-inset-right, 0px) + 10px) 0 calc(env(safe-area-inset-left, 0px) + 10px);
   pointer-events: none;
 }
+.hud-main { display: flex; justify-content: space-between; gap: 8px; }
+.hud-sub { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.mini {
+  display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 7px; border-radius: 6px;
+  background: rgba(40, 26, 12, .78); border: 1px solid #6f4524; font-weight: 700; font-size: 14px; color: #fff4dc; font-variant-numeric: tabular-nums;
+}
+.mini img { image-rendering: pixelated; height: 12px; width: auto; }
+.mini.goal { font-weight: 500; font-size: 13px; color: #f3e3b8; }
+.chip.energy { padding: 0 8px; }
+.bar { display: block; width: 64px; height: 12px; border-radius: 4px; background: #3a2412; box-shadow: inset 0 1px 2px rgba(0,0,0,.6); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 100%; background: linear-gradient(#b8e06a, #6f9a2e); transition: width .2s; }
+.bar i.low { background: linear-gradient(#ffb070, #d0502a); }
 .hud-group { display: flex; gap: 6px; }
 .chip {
   display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px;
@@ -40,7 +52,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .chip.icon { pointer-events: auto; width: 38px; justify-content: center; padding: 0; font-size: 13px; letter-spacing: -2px; }
 
 #tip {
-  position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 50px); transform: translateX(-50%);
+  position: absolute; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 78px); transform: translateX(-50%);
   width: min(92%, 520px); padding: 8px 12px; border-radius: 8px; text-align: center; font-size: 15px; line-height: 1.35;
   background: rgba(40, 26, 12, .82); border: 1px solid var(--wood-hi); pointer-events: none;
 }
@@ -60,7 +72,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .pad-row { display: flex; justify-content: space-between; align-items: flex-end; }
 .pad-hint { display: none; margin: 0 0 auto; text-align: center; font-size: 14px; color: var(--muted); }
 #pad .cluster { display: flex; gap: 14px; align-items: flex-end; pointer-events: auto; }
-#pad .cluster.right { align-items: flex-start; }
+#pad .cluster.right { align-items: flex-end; }
+#pad .stack { display: flex; flex-direction: column; gap: 10px; }
+#pad button[data-k="smoke"] { width: 62px; height: 62px; font-size: 14px; }
+#pad button.empty { opacity: .45; }
 #pad button {
   width: 76px; height: 76px; border-radius: 50%; border: 3px solid rgba(255, 240, 210, .55);
   background: rgba(60, 38, 18, .45); color: #fff4dc; font-weight: 800; font-size: 22px; touch-action: none;
@@ -75,7 +90,8 @@ body.portrait #pad { top: var(--game-h); pointer-events: auto; padding-left: 4vw
 body.portrait .pad-hint { display: block; padding-top: 4px; }
 body.portrait #pad .cluster { gap: 2.5vw; }
 body.portrait #pad button { width: min(20vw, 92px); height: min(20vw, 92px); background: #3a2a1a; border-color: var(--wood-hi); }
-body.portrait #pad button[data-k="run"] { width: min(16vw, 72px); height: min(16vw, 72px); }
+body.portrait #pad button[data-k="run"], body.portrait #pad button[data-k="smoke"] { width: min(16vw, 72px); height: min(16vw, 72px); font-size: 14px; }
+body.portrait #pad .stack { gap: 2.5vw; }
 body.portrait #pad button.big { width: min(25vw, 112px); height: min(25vw, 112px); background: #4f6a26; border-color: var(--moss); font-size: 17px; }
 body.portrait #pad button.on { background: #6d4d2c; }
 body.portrait #pad button.big.on { background: #6f8f3a; }
@@ -115,6 +131,15 @@ h2 { font-size: 30px; }
 .day-pick strong { font-family: var(--serif); font-size: 26px; }
 .day-pick button { width: 52px; min-height: 48px; padding: 0; }
 .day-line { margin: 0; font-family: var(--serif); font-size: 22px; }
+.balance { font-family: var(--serif); font-size: 34px; font-weight: 700; color: #ffe07a; font-variant-numeric: tabular-nums; }
+.stock { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.stock span { padding: 4px 10px; border-radius: 999px; background: rgba(0,0,0,.25); border: 1px solid var(--wood); font-size: 14px; }
+.actions { display: flex; flex-direction: column; gap: 8px; }
+.card .actions button { display: flex; justify-content: space-between; align-items: center; gap: 10px; text-align: left; }
+.card .actions button small { font-weight: 500; color: var(--muted); white-space: nowrap; }
+.card button:disabled { opacity: .45; cursor: default; }
+.progress { height: 12px; border-radius: 6px; background: rgba(0,0,0,.35); overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #b2d46a, #7c9e3a); transition: width .3s; }
 .tally-row { display: flex; align-items: center; justify-content: center; gap: 18px; }
 .tally-row > div { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 90px; }
 .tally-row img { image-rendering: pixelated; height: 42px; }
@@ -133,5 +158,20 @@ button:focus-visible { outline: 3px solid var(--moss); outline-offset: 2px; }
   .card button.primary { min-height: 46px; font-size: 18px; }
   .day-pick strong { font-size: 22px; }
   .keys { display: none; }
-  #tip { top: calc(env(safe-area-inset-top, 0px) + 48px); font-size: 14px; padding: 6px 10px; }
+  #tip { top: calc(env(safe-area-inset-top, 0px) + 74px); font-size: 14px; padding: 6px 10px; }
+  .balance { font-size: 26px; }
+  .card .actions { display: grid; grid-template-columns: 1fr 1fr; }
+}
+
+/* Keskeny képernyő: kisebb kijelzők */
+.chip, .mini { white-space: nowrap; }
+@media (max-width: 480px) {
+  .chip { height: 30px; padding: 0 7px; font-size: 15px; gap: 4px; }
+  .chip img { height: 18px; }
+  .chip.day { font-size: 13px; }
+  .chip.icon { width: 32px; }
+  .bar { width: 44px; }
+  .hud-group { gap: 4px; }
+  .mini { font-size: 13px; height: 22px; padding: 0 6px; }
+  .mini.goal { font-size: 12px; }
 }

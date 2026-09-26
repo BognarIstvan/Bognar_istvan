@@ -1,6 +1,10 @@
 'use strict';
 // Játéklogika: fizika, ütközés, ellenfelek, tárgyak, naptár. Rajzolás nincs benne,
 // így Node alatt is tesztelhető (test/engine-test.cjs).
+//
+// Gazdaság (az eredeti Ork szimulátor szerint): a palack 15 centet ér a Jednotában,
+// a csucsó 75 cent, a cigipapír 15 cent, a nagy szatyor 60 cent. 5 csikk + 1 papír = 1 sodrás.
+// A műszak célja 3 csucsót leadni a Parlamentnél.
 (function (CS) {
   const T = 16;
   const ROWS = 12;
@@ -15,10 +19,13 @@
     'Sárgazsák-nap! A házak előtt sárga zsákok, bennük PET-palack.',
     'Vasárnap. Mindenki pihen, a vaddisznók is lustábbak.',
   ];
+  const PRICES = { bottle: 15, wine: 75, paper: 15, bigBag: 60 };
+  const GOAL_WINE = 3;
   const SOLID = new Set(['#', '=']);
   const BLOCKS = new Set(['?', '$', 'S', 'L', 'U']);
   const BINS = new Set(['k', 'n']);
-  const ITEM_SIZE = { bag: [10, 12], lotty: [8, 11], csucso: [6, 14], fruit: [8, 8], sack: [14, 14] };
+  const ITEM_SIZE = { lotty: [8, 11], csucso: [6, 14], fruit: [8, 8], sack: [14, 14] };
+  const DAMAGE = { boar: 30, magpie: 15, pit: 25 };
 
   const PHYS = {
     walk: 82, run: 135, accGround: 430, accRun: 540, accAir: 300,
@@ -29,19 +36,24 @@
   const key = (c, r) => c + ',' + r;
   const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 
+  function newInventory() {
+    return { cash: 0, bottles: 0, capacity: 12, butts: 0, paper: 1, wine: 0, cigs: 0, delivered: 0, rolled: 0, energy: 100 };
+  }
+
   function createGame(level, opts = {}) {
     const rows = level.rows;
     const cols = rows[0].length;
     const tiles = rows.map(r => r.split(''));
     const s = {
       level, cols, rows: ROWS, width: cols * T, height: ROWS * T,
-      tiles, blocks: {}, bins: {}, coins: [], loose: [], items: [], enemies: [],
+      tiles, blocks: {}, bins: {}, coins: [], loose: [], items: [], enemies: [], clouds: [],
       particles: [], popups: [], decor: [], signs: [], events: [],
       day: ((opts.day || 0) % 7 + 7) % 7,
-      lives: opts.lives ?? 3, bottles: opts.bottles ?? 0,
+      inv: opts.inv || newInventory(),
       time: 0, phase: 'play', viewW: opts.viewW || 320, camX: 0,
-      checkpoint: null, goal: null, sign: null, told: {}, smokeT: 0,
+      checkpoint: null, goal: null, sign: null, told: {}, smokeT: 0, fullT: 0,
     };
+    const goalType = level.goal || 'J';
     let signIndex = 0;
     for (let r = 0; r < ROWS; r++) {
       for (let c = 0; c < cols; c++) {
@@ -54,15 +66,22 @@
         if (BINS.has(ch)) { s.bins[key(c, r)] = { type: ch, c, r, used: false, lid: 0 }; continue; }
         if (SOLID.has(ch) || ch === '-' || ch === '.') continue;
         tiles[r][c] = '.';
-        if (ch === 'o') s.coins.push({ x: x + 5, y: y + 3, w: 6, h: 10, taken: false });
-        else if (ch === 'b') s.enemies.push({ kind: 'boar', x: x - 1, y: y + 5, w: 18, h: 11, vx: -28, vy: 0, alive: true, active: false });
-        else if (ch === 'm') s.enemies.push({ kind: 'magpie', x, y, w: 14, h: 8, vx: -35, vy: 0, baseX: x, baseY: y, t: c, mode: 'patrol', cool: 0, alive: true, active: false });
+        if (ch === 'o') s.coins.push({ kind: 'bottle', x: x + 5, y: y + 3, w: 6, h: 10, taken: false });
+        else if (ch === 'c') s.coins.push({ kind: 'butt', x: x + 4, y: y + 13, w: 8, h: 3, taken: false });
+        else if (ch === 'b') s.enemies.push({ kind: 'boar', x: x - 1, y: y + 5, w: 18, h: 11, vx: -28, vy: 0, alive: true, active: false, stun: 0 });
+        else if (ch === 'm') s.enemies.push({ kind: 'magpie', x, y, w: 14, h: 8, vx: -35, vy: 0, baseX: x, baseY: y, t: c, mode: 'patrol', cool: 0, alive: true, active: false, stun: 0 });
         else if (ch === 'z') { if (s.day === 5) s.items.push(makeItem('sack', x + 1, y + 2)); }
         else if (ch === 'C') s.decor.push({ type: 'well', x, y: y + T, active: false });
         else if (ch === 'T') s.signs.push({ x: x + 8, text: (level.signs || [])[signIndex++] || '' }), s.decor.push({ type: 'sign', x, y: y + T });
-        else if (ch === 'P') { s.decor.push({ type: 'parliament', x, y: y + T }); s.start = { x: x + 84, y: y + T - 22 }; }
-        else if (ch === 'J') { s.decor.push({ type: 'jednota', x, y: y + T }); s.goal = { x: x + 12, door: x + 110 }; }
-        else if (ch === 'B') {
+        else if (ch === 'P') {
+          s.decor.push({ type: 'parliament', x, y: y + T });
+          if (goalType === 'P') s.goal = { x: x - 8, door: x + 34 };
+          else s.start = { x: x + 84, y: y + T - 22 };
+        } else if (ch === 'J') {
+          s.decor.push({ type: 'jednota', x, y: y + T });
+          if (goalType === 'J') s.goal = { x: x + 12, door: x + 110 };
+          else s.start = { x: x + 140, y: y + T - 22 };
+        } else if (ch === 'B') {
           s.decor.push({ type: 'shelter', x, y: y + T });
           for (let i = 0; i < 3; i++) if (tiles[r - 2][c + i] === '.') tiles[r - 2][c + i] = '-';
         }
@@ -78,7 +97,7 @@
   function newPlayer(p) {
     return {
       x: p.x, y: p.y, w: 10, h: 22, vx: 0, vy: 0, face: 1, ground: false, coyote: 0, jumpBuf: 0,
-      bag: false, boost: 0, hang: 0, tipsy: 0, inv: 0, walkT: 0, dying: 0, hidden: false, prevBottom: p.y + 22,
+      boost: 0, hang: 0, tipsy: 0, inv: 0, walkT: 0, dying: 0, hidden: false, prevBottom: p.y + 22,
     };
   }
 
@@ -155,10 +174,30 @@
       s.particles.push({ x, y, vx: Math.cos(a) * spread * Math.random(), vy: -Math.random() * spread, life: 0.5, max: 0.5, color, g: 120 });
     }
   }
-  function addBottles(s, n, x, y) {
-    s.bottles += n;
+  function tell(s, id, text) {
+    if (s.told[id]) return;
+    s.told[id] = true;
+    toast(s, text);
+  }
+  function bagFull(s) {
+    if (s.fullT > 0) return;
+    s.fullT = 4;
+    toast(s, 'Tele a szatyor! (' + s.inv.capacity + ' palack) Váltsd be a Jednotában.');
+  }
+
+  // Palack felvétele: csak ha fér a szatyorba.
+  function takeBottle(s, x, y) {
+    if (s.inv.bottles >= s.inv.capacity) { bagFull(s); return false; }
+    s.inv.bottles++;
     sfx(s, 'coin');
-    popup(s, x, y, '+' + n);
+    popup(s, x, y, '+15');
+    return true;
+  }
+  function takeButt(s, x, y) {
+    s.inv.butts++;
+    sfx(s, 'butt');
+    popup(s, x, y, '+1');
+    if (s.inv.butts === 5) tell(s, 'butt5', 'Megvan az 5 csikk! Cigipapírral a Parlamentnél sodrás lesz belőle.');
   }
 
   // ---------- blocks and bins ----------
@@ -173,22 +212,32 @@
     const x = c * T, y = r * T;
     if (b.hidden) b.hidden = false;
     if (b.type === '?' || b.type === '$') {
-      s.particles.push({ kind: 'coinpop', x: x + 5, y: y - 10, vx: 0, vy: -220, life: 0.45, max: 0.45, g: 900 });
-      addBottles(s, 1, x + 8, y - 12);
+      if (s.inv.bottles >= s.inv.capacity) spill(s, x + 8, y, 'bottle', 1, Infinity);
+      else {
+        s.particles.push({ kind: 'coinpop', x: x + 5, y: y - 10, vx: 0, vy: -220, life: 0.45, max: 0.45, g: 900 });
+        takeBottle(s, x + 8, y - 12);
+      }
       if (--b.hits <= 0) b.used = true;
       return;
     }
     b.used = true;
+    if (b.type === 'S') {
+      s.inv.paper++;
+      s.particles.push({ kind: 'paperpop', x: x + 4, y: y - 8, vx: 0, vy: -200, life: 0.45, max: 0.45, g: 900 });
+      sfx(s, 'coin');
+      toast(s, 'Cigipapír! (' + s.inv.paper + ' db)');
+      return;
+    }
     sfx(s, 'sprout');
-    if (b.type === 'S') s.items.push(makeItem('bag', x + 3, y, { emerge: 0.5, vx: 40, top: y }));
     if (b.type === 'L') s.items.push(makeItem('lotty', x + 4, y, { emerge: 0.5, vx: 55, top: y }));
     if (b.type === 'U') s.items.push(makeItem('csucso', x + 5, y, { emerge: 0.5, vx: 45, top: y }));
   }
 
-  function spill(s, x, y, n, ttl) {
+  function spill(s, x, y, kind, n, ttl) {
     for (let i = 0; i < n; i++) {
       const spread = n > 1 ? (i / (n - 1) - 0.5) * 2 : 0;
-      s.loose.push({ x: x - 3, y: y - 10, w: 6, h: 10, vx: spread * 55 + (Math.random() - 0.5) * 20, vy: -190 - Math.random() * 60, age: 0, ttl, ground: false });
+      const w = kind === 'bottle' ? 6 : 8, h = kind === 'bottle' ? 10 : 3;
+      s.loose.push({ kind, x: x - w / 2, y: y - 10, w, h, vx: spread * 55 + (Math.random() - 0.5) * 20, vy: -190 - Math.random() * 60, age: 0, ttl, ground: false });
     }
   }
 
@@ -207,73 +256,76 @@
       n = 1;
       if (s.day === 1) s.items.push(makeItem('fruit', x - 4, y - 10, { vy: -200, vx: -30 }));
     }
-    spill(s, x, y, n, Infinity);
-  }
-
-  function tell(s, id, text) {
-    if (s.told[id]) return;
-    s.told[id] = true;
-    toast(s, text);
+    spill(s, x, y, 'bottle', n, Infinity);
+    spill(s, x, y, 'butt', 1, Infinity);
   }
 
   // ---------- player ----------
-  function hurt(s) {
+  function hurt(s, amount) {
     const p = s.player;
     if (p.inv > 0 || p.boost > 0 || s.phase !== 'play') return;
-    if (p.bag) {
-      p.bag = false;
-      p.inv = 2;
-      const n = Math.min(s.bottles, 8);
-      s.bottles -= n;
-      spill(s, p.x + p.w / 2, p.y + 8, n, 4);
-      sfx(s, 'hurt');
-      toast(s, n ? 'Elszakadt a szatyor! Kapd el a palackokat!' : 'Elszakadt a szatyor!');
-      return;
-    }
-    die(s, false);
+    s.inv.energy = Math.max(0, s.inv.energy - amount);
+    p.inv = 1.5;
+    p.vy = -170; p.vx = -p.face * 90;
+    const n = Math.min(s.inv.bottles, 4);
+    s.inv.bottles -= n;
+    spill(s, p.x + p.w / 2, p.y + 8, 'bottle', n, 4);
+    sfx(s, 'hurt');
+    if (s.inv.energy <= 0) faint(s, false);
+    else if (n) tell(s, 'scatter', 'Kiszóródtak a palackok! Kapd el őket, mielőtt eltűnnek!');
   }
 
-  function die(s, pit) {
+  // Kidőlés vagy csatornába esés: vissza a legutóbbi kúthoz.
+  function faint(s, pit) {
     const p = s.player;
     if (s.phase !== 'play') return;
     s.phase = 'dying';
-    p.dying = 1.8;
+    p.pit = pit;
+    p.dying = pit ? 0.9 : 1.8;
     p.vx = 0;
     p.vy = pit ? 0 : -330;
-    p.bag = false; p.boost = 0; p.hang = 0; p.tipsy = 0;
-    sfx(s, 'die');
+    p.boost = 0; p.hang = 0; p.tipsy = 0;
+    sfx(s, pit ? 'splash' : 'die');
   }
 
   function respawn(s) {
+    const pit = s.player.pit;
+    if (pit) s.inv.energy = Math.max(0, s.inv.energy - DAMAGE.pit);
+    const fainted = s.inv.energy <= 0;
+    if (fainted) s.inv.energy = 100;
     const p = newPlayer(s.checkpoint);
     p.inv = 2;
     s.player = p;
     s.phase = 'play';
     s.camX = clampCam(s, p.x - s.viewW * 0.4);
+    toast(s, fainted ? 'Kidőltél. A kútnál tértél magadhoz.' : 'Kimásztál a csatornából. Vizes lettél, de megvagy.');
   }
 
   function collectItem(s, it) {
     const p = s.player;
-    if (it.type === 'bag') {
-      if (p.bag) addBottles(s, 2, it.x, it.y);
-      else { p.bag = true; sfx(s, 'power'); toast(s, 'Szatyor! Most elbírsz egy ütést.'); }
-    } else if (it.type === 'lotty') {
+    if (it.type === 'lotty') {
       p.boost = 20; p.hang = 0; p.tipsy = 0;
       sfx(s, 'power');
       toast(s, 'Gyanús lötty! 20 mp orkerő: gyorsabb vagy és sérthetetlen.');
     } else if (it.type === 'csucso') {
-      s.lives++;
+      s.inv.wine++;
       sfx(s, 'oneup');
       popup(s, it.x, it.y - 4, '+1');
-      toast(s, 'Egy üveg CSUCSÓ! +1 élet.');
+      toast(s, 'Egy üveg CSUCSÓ! Ezt is leadhatod a Parlamentnél.');
     } else if (it.type === 'fruit') {
       p.tipsy = 8;
       sfx(s, 'hic');
       toast(s, 'Erjedt gyümölcs... kótyagos lettél egy kicsit.');
     } else if (it.type === 'sack') {
-      addBottles(s, 3, it.x + 6, it.y);
-      tell(s, 'sack', 'Sárgazsák: 3 PET-palack!');
+      const free = s.inv.capacity - s.inv.bottles;
+      const n = Math.min(3, free);
+      if (n <= 0) { bagFull(s); return false; }
+      s.inv.bottles += n;
+      sfx(s, 'coin');
+      popup(s, it.x + 6, it.y, '+' + n);
+      tell(s, 'sack', 'Sárgazsák: PET-palackok!');
     }
+    return true;
   }
 
   function defeat(s, e, how) {
@@ -286,24 +338,35 @@
     puff(s, e.x + e.w / 2, e.y + e.h / 2, 6, '#e8dcc0');
   }
 
+  // Sodrás elszívása: füstfelhő, ami elkábítja a közeli ellenfeleket.
+  function smoke(s) {
+    const p = s.player;
+    if (s.inv.cigs <= 0) { tell(s, 'nocig', 'Nincs sodrásod. 5 csikkből és 1 cigipapírból a Parlamentnél sodorhatsz.'); return; }
+    s.inv.cigs--;
+    s.clouds.push({ x: p.x + p.w / 2 + p.face * 16, y: p.y + 8, r: 3, max: 30, life: 2.6 });
+    sfx(s, 'puff');
+  }
+
   function updatePlayer(s, input, dt) {
     const p = s.player;
     p.prevBottom = p.y + p.h;
     if (s.phase === 'dying') {
       p.dying -= dt;
-      if (p.dying < 1.45) { p.vy = Math.min(p.vy + 900 * dt, 400); p.y += p.vy * dt; }
-      if (p.dying <= 0) {
-        s.lives--;
-        if (s.lives <= 0) { s.phase = 'gameover'; s.events.push({ t: 'gameover' }); }
-        else respawn(s);
-      }
+      if (!p.pit && p.dying < 1.45) { p.vy = Math.min(p.vy + 900 * dt, 400); p.y += p.vy * dt; }
+      if (p.dying <= 0) respawn(s);
       return;
     }
     if (s.phase === 'goal') {
       p.vx = 50; p.face = 1; p.walkT += 50 * dt;
       p.vy = Math.min(p.vy + PHYS.gravity * dt, PHYS.maxFall);
       moveBody(s, p, dt);
-      if (p.x + p.w / 2 >= s.goal.door) { p.hidden = true; s.phase = 'done'; sfx(s, 'goal'); s.events.push({ t: 'goal' }); }
+      if (p.x + p.w / 2 >= s.goal.door) {
+        p.hidden = s.level.goal !== 'P';
+        p.vx = 0;
+        s.phase = 'done';
+        sfx(s, 'goal');
+        s.events.push({ t: 'goal', at: s.level.goal || 'J' });
+      }
       return;
     }
     if (s.phase !== 'play') return;
@@ -315,11 +378,11 @@
     let target = dir * maxSpeed;
     if (p.tipsy > 0) target += Math.sin(s.time * 2.3) * 38;
     if (dir) p.face = dir;
-    if (target !== 0) {
+    if (target !== 0 && p.inv < 1.2) {
       let acc = p.ground ? (input.run ? PHYS.accRun : PHYS.accGround) : PHYS.accAir;
       if (p.ground && dir && Math.sign(p.vx) === -dir) acc *= 1.8;
       p.vx = p.vx < target ? Math.min(target, p.vx + acc * dt) : Math.max(target, p.vx - acc * dt);
-    } else {
+    } else if (target === 0) {
       const f = (p.ground ? PHYS.friction : PHYS.airFriction) * dt;
       p.vx = Math.abs(p.vx) <= f ? 0 : p.vx - Math.sign(p.vx) * f;
     }
@@ -332,6 +395,7 @@
       p.ground = false; p.coyote = 0; p.jumpBuf = 0;
       sfx(s, 'jump');
     }
+    if (input.smokePressed) smoke(s);
     const g = p.vy < 0 && input.jump ? PHYS.gravityHold : PHYS.gravity;
     p.vy = Math.min(p.vy + g * dt, PHYS.maxFall);
 
@@ -344,7 +408,7 @@
       if (!wasGround && hit.floor.speed > 220) puff(s, p.x + p.w / 2, p.y + p.h, 4, '#d9c9a4', 30);
     }
     if (p.ground && Math.abs(p.vx) > 1) p.walkT += Math.abs(p.vx) * dt;
-    if (p.y > s.height + 24) die(s, true);
+    if (p.y > s.height + 24) faint(s, true);
 
     if (p.boost > 0) { p.boost -= dt; if (p.boost <= 0) { p.boost = 0; p.hang = 6; toast(s, 'Elmúlt az orkerő. Jön a józanodás...'); } }
     if (p.hang > 0) p.hang = Math.max(0, p.hang - dt);
@@ -353,6 +417,7 @@
       if (Math.random() < dt * 1.2) s.particles.push({ kind: 'bubble', x: p.x + p.w / 2 + p.face * 5, y: p.y, vx: 0, vy: -14, life: 1.2, max: 1.2, g: 0 });
     }
     if (p.inv > 0) p.inv = Math.max(0, p.inv - dt);
+    if (s.fullT > 0) s.fullT -= dt;
 
     s.smokeT -= dt;
     if (s.smokeT <= 0) {
@@ -360,17 +425,21 @@
       s.particles.push({ kind: 'smoke', x: p.x + p.w / 2 + p.face * 8, y: p.y + 4, vx: p.face * 3, vy: -9, life: 1.4, max: 1.4, g: 0 });
     }
 
-    // checkpoint, goal, signs
+    // artézi kút, cél, táblák
     for (const d of s.decor) {
       if (d.type === 'well' && !d.active && p.x > d.x - 4) {
         d.active = true;
         s.checkpoint = { x: d.x + 20, y: d.y - 22 };
+        s.inv.energy = 100;
         p.tipsy = 0; p.hang = 0;
         sfx(s, 'check');
-        toast(s, 'Artézi kút: ha elesel, innen folytatod.');
+        toast(s, 'Artézi kút: erőnlét feltöltve, józan vagy. Ha elesel, innen folytatod.');
       }
     }
-    if (s.goal && p.x > s.goal.x) { s.phase = 'goal'; p.boost = 0; toast(s, 'Irány az automata!'); }
+    if (s.goal && p.x > s.goal.x) {
+      s.phase = 'goal'; p.boost = 0;
+      toast(s, s.level.goal === 'P' ? 'Megjött az ellátmány! Ülésezik a Parlament.' : 'Irány a bolt!');
+    }
     s.sign = null;
     for (const sg of s.signs) if (Math.abs(sg.x - (p.x + p.w / 2)) < 26) s.sign = sg.text;
   }
@@ -383,7 +452,9 @@
     for (const b of Object.values(s.bins)) if (b.lid > 0) b.lid = Math.max(0, b.lid - dt * 2);
 
     for (const c of s.coins) {
-      if (!c.taken && alive && overlap(p, c)) { c.taken = true; addBottles(s, 1, c.x + 3, c.y); puff(s, c.x + 3, c.y + 4, 4, '#fff3a0', 30); }
+      if (c.taken || !alive || !overlap(p, c)) continue;
+      if (c.kind === 'butt') { c.taken = true; takeButt(s, c.x + 4, c.y - 6); }
+      else if (takeBottle(s, c.x + 3, c.y)) { c.taken = true; puff(s, c.x + 3, c.y + 4, 4, '#fff3a0', 30); }
     }
 
     for (const b of s.loose) {
@@ -393,7 +464,10 @@
       const hit = moveBody(s, b, dt);
       if (hit.wall) b.vx = -b.vx * 0.5;
       if (b.ground) b.vx *= Math.max(0, 1 - dt * 6);
-      if (alive && b.age > 0.3 && overlap(p, b)) { b.gone = true; addBottles(s, 1, b.x + 3, b.y); }
+      if (alive && b.age > 0.3 && overlap(p, b)) {
+        if (b.kind === 'butt') { b.gone = true; takeButt(s, b.x + 4, b.y - 4); }
+        else if (takeBottle(s, b.x + 3, b.y)) b.gone = true;
+      }
       if (b.ttl <= 0 || b.y > s.height + 20) b.gone = true;
     }
     s.loose = s.loose.filter(b => !b.gone);
@@ -405,10 +479,22 @@
       if (hit.wall) it.vx = -it.vx || 0;
       if (it.ground && it.type === 'lotty') it.vy = -230;
       if (it.ground && (it.type === 'fruit' || it.type === 'sack')) it.vx = 0;
-      if (alive && overlap(p, it)) { it.gone = true; collectItem(s, it); }
+      if (alive && overlap(p, it) && collectItem(s, it) !== false) it.gone = true;
       if (it.y > s.height + 20) it.gone = true;
     }
     s.items = s.items.filter(i => !i.gone);
+
+    for (const c of s.clouds) {
+      c.life -= dt;
+      c.r = Math.min(c.max, c.r + 60 * dt);
+      for (const e of s.enemies) {
+        if (e.alive && e.stun <= 0 && Math.hypot(e.x + e.w / 2 - c.x, e.y + e.h / 2 - c.y) < c.r + 6) {
+          e.stun = 4;
+          popup(s, e.x + e.w / 2, e.y - 4, 'ZZZ');
+        }
+      }
+    }
+    s.clouds = s.clouds.filter(c => c.life > 0);
 
     const speed = s.day === 6 ? 0.7 : 1;
     for (const e of s.enemies) {
@@ -417,7 +503,10 @@
         continue;
       }
       if (!e.active) { if (e.x < s.camX + s.viewW + 40) e.active = true; else continue; }
-      if (e.kind === 'boar') updateBoar(s, e, dt, speed);
+      if (e.stun > 0) {
+        e.stun -= dt;
+        if (e.kind === 'boar') { e.vy = Math.min(e.vy + 900 * dt, 400); const d = e.vx; e.vx = 0; moveBody(s, e, dt); e.vx = d; }
+      } else if (e.kind === 'boar') updateBoar(s, e, dt, speed);
       else updateMagpie(s, e, dt);
       if (!e.alive || !alive) continue;
       if (e.mode === 'flee' || !overlap(p, e)) continue;
@@ -425,15 +514,16 @@
       else if (p.vy > 0 && p.prevBottom <= e.y + 6) {
         defeat(s, e);
         p.vy = -(e.kind === 'boar' ? 250 : 220);
-      } else if (e.kind === 'magpie' && s.bottles > 0 && p.inv <= 0) {
-        s.bottles--;
+      } else if (e.stun > 0) continue;
+      else if (e.kind === 'magpie' && s.inv.bottles > 0 && p.inv <= 0) {
+        s.inv.bottles--;
         e.mode = 'flee'; e.carry = true;
         e.vx = e.x > p.x ? 90 : -90; e.vy = -60;
         p.inv = 0.8;
         sfx(s, 'steal');
         popup(s, p.x + p.w / 2, p.y - 4, '-1');
         tell(s, 'magpie', 'A szarka elcsórt egy palackot!');
-      } else hurt(s);
+      } else hurt(s, DAMAGE[e.kind]);
     }
     s.enemies = s.enemies.filter(e => e.alive || e.deadT > 0);
 
@@ -480,7 +570,7 @@
       if (e.y <= e.baseY) { e.y = e.baseY; e.mode = 'patrol'; e.cool = 1.5; e.baseX = e.x; e.vx = e.vx > 0 ? 35 : -35; }
     } else if (e.mode === 'flee') {
       e.x += e.vx * dt; e.y += e.vy * dt;
-      if (e.y < -30) e.alive = false, e.deadT = 0;
+      if (e.y < -30) { e.alive = false; e.deadT = 0; }
     }
   }
 
@@ -499,11 +589,20 @@
     }
   }
 
-  // Jednota-automata: minden 5 palackból egy csucsó (élet).
-  function tally(s) {
-    const n = Math.floor(s.bottles / 5);
-    return { csucso: n, left: s.bottles - n * 5 };
-  }
+  // ---------- Jednota és Parlament (a pályák közötti képernyők) ----------
+  const Shop = {
+    redeem(inv) { const n = inv.bottles; inv.cash += n * PRICES.bottle; inv.bottles = 0; return n; },
+    buyWine(inv) { if (inv.cash < PRICES.wine) return false; inv.cash -= PRICES.wine; inv.wine++; return true; },
+    buyPaper(inv) { if (inv.cash < PRICES.paper) return false; inv.cash -= PRICES.paper; inv.paper++; return true; },
+    buyBigBag(inv) { if (inv.cash < PRICES.bigBag || inv.capacity > 12) return false; inv.cash -= PRICES.bigBag; inv.capacity = 20; return true; },
+  };
+  const Parliament = {
+    deliver(inv) { const n = Math.min(inv.wine, GOAL_WINE - inv.delivered); if (n <= 0) return 0; inv.wine -= n; inv.delivered += n; return n; },
+    roll(inv) { if (inv.butts < 5 || inv.paper < 1) return false; inv.butts -= 5; inv.paper--; inv.cigs++; return true; },
+    offerCig(inv) { if (inv.cigs < 1) return false; inv.cigs--; inv.rolled++; return true; },
+    rest(inv) { inv.energy = 100; },
+    won(inv) { return inv.delivered >= GOAL_WINE; },
+  };
 
-  CS.Engine = { T, ROWS, DAYS, DAY_NOTES, PHYS, createGame, update, tally, respawn, isSolid, tileAt, key };
+  CS.Engine = { T, ROWS, DAYS, DAY_NOTES, PHYS, PRICES, GOAL_WINE, createGame, update, newInventory, Shop, Parliament, respawn, isSolid, tileAt, key };
 })(typeof window !== 'undefined' ? (window.CS = window.CS || {}) : (globalThis.CS = globalThis.CS || {}));

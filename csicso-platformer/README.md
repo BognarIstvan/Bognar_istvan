@@ -7,26 +7,40 @@ Helyi előnézethez a mappában: `python -m http.server 8765`, majd http://127.0
 
 ## Irányítás
 
-- **Telefonon:** ◀ ▶ mozgás, **UGRÁS** (nyomva tartva magasabb), **FUT** be- és kikapcsolható.
-  Két ujjal is megy: futás közben ugrás. Fektetve nagyobb a kép.
-- **Gépen:** ← → vagy A D mozgás, szóköz / ↑ / W ugrás, Shift futás, P vagy Esc szünet.
+- **Telefonon:** ◀ ▶ mozgás, **UGRÁS** (nyomva tartva magasabb), **FUT** be- és kikapcsolható,
+  **FÜST**: elszívsz egy sodrást. Két ujjal is megy: futás közben ugrás. Fektetve nagyobb a kép.
+- **Gépen:** ← → vagy A D mozgás, szóköz / ↑ / W ugrás, Shift futás, F füst, P vagy Esc szünet.
 
-## Játékmenet (1-1: Parlament → Jednota)
+## Játékmenet
 
-- **Palack** = pénz. A Jednota automatája minden **5 palackért egy csucsót** ad.
-- **Csucsó** = élet. Egy csucsó el van rejtve a pályán egy láthatatlan rekeszben is.
-- **Sörösrekesz** (piros, „?”): alulról megfejelve palackot vagy meglepetést ad.
-- **Kuka:** a tetejére ugorva kidobja a tartalmát. Hogy mi van benne, a naptáron múlik.
-- **Szatyor:** elbírsz vele egy ütést. Ha megüt valami, elszakad, és a palackjaid
-  szétszóródnak (Sonic-módra) – pár másodpercig még vissza lehet kapkodni őket.
-  Szatyor nélkül egy ütés egy csucsóba kerül.
+Az eredeti Ork szimulátor gazdasága szerint. **Egy műszak két pálya:**
+
+1. **1-1 Parlament → Jednota:** palackot és csikket gyűjtesz. A pálya végén a **Jednotában**:
+   - palack visszaváltása: **0,15 €** darabja,
+   - **csucsó: 0,75 €**, **cigipapír: 0,15 €**, **nagy szatyor: 0,60 €** (12 helyett 20 palack fér bele).
+2. **1-2 Jednota → Parlament:** hazaviszed a csucsót a Főtéren át. A **Parlamentnél**:
+   - leadod a csucsót (az esti üléshez **3 csucsó** kell),
+   - **sodrást** készítesz (**5 csikk + 1 cigipapír**), és vagy leadod az ülésre, vagy elszívod füstnek a pályán,
+   - pihenhetsz (erőnlét).
+
+Ha megvan a 3 csucsó: „A határozat elfogadva!”. Ha nincs meg, holnap új műszak, és ami a szatyorban maradt, megmarad.
+A játék minden pálya végén ment, a címlapon a **Folytatás** gombbal lehet visszatérni.
+
+- **Szatyor:** 12 palack fér bele. Ha tele van, a palack ott marad, ahol volt.
+- **Sörösrekesz** (piros, „?”): alulról megfejelve palackot, cigipapírt vagy Gyanús löttyöt ad.
+  Mindkét pályán el van rejtve egy láthatatlan rekeszben egy üveg csucsó is.
+- **Kuka:** a tetejére ugorva kidobja a palackokat és egy csikket. Hogy mennyi van benne, a naptáron múlik.
+- **Erőnlét:** a vaddisznó 30-at, a szarka (ha nincs mit ellopnia) 15-öt, a csatorna 25-öt vesz el.
+  Ütéskor a palackok szétszóródnak, és pár másodpercig vissza lehet kapkodni őket.
+  Ha elfogy, kidőlsz, és a legutóbbi artézi kútnál térsz magadhoz.
+- **Artézi kút:** ellenőrzőpont, feltölti az erőnlétet és józanít.
 - **Gyanús lötty:** 20 mp orkerő (gyorsabb, sérthetetlen), utána 6 mp józanodás (lassabb).
-- **Artézi kút:** ellenőrzőpont, és józanít.
+- **Sodrás füstje:** 4 másodpercre elkábítja a közeli vaddisznót és szarkát.
 - **Vaddisznó:** rá lehet taposni. **Szarka:** lecsap, és ha van palackod, ellop egyet.
 
 ### Naptár
 
-A címlapon választható, milyen nap van; minden újrakezdés a következő napra ugrik.
+A címlapon választható, milyen nap van; minden új műszak a következő napra ugrik.
 
 | Nap | Hatás |
 |---|---|
@@ -56,12 +70,12 @@ A címlapon választható, milyen nap van; minden újrakezdés a következő nap
 node test/engine-test.cjs
 ```
 
-Pályaformátum, fizika, kukák a naptár szerint, rekeszek, szatyor és szóródás, életvesztés,
-ellenfelek, lötty, kút, cél és beváltás, valamint egy robot, amely végigfut a pályán.
+Pályaformátum, fizika, szatyor férőhelye, kukák a naptár szerint, rekeszek, erőnlét és szóródás, kidőlés, füst, Jednota-bolt, Parlament,
+ellenfelek, lötty, kút, célok, valamint egy robot, amely végigfut mindkét pályán.
 
 ## Következő lépések
 
-- 1-2 Főtér és iskola, 1-3 Hétvezér park, 1-4 Kastélypark és Csörgő híd; világtérkép.
+- 1-3 Hétvezér park, 1-4 Kastélypark és Csörgő híd (a kertész egyszeri 6 palackos jutalma); világtérkép.
+- Benzines palack (veszélyes lelet: az automata bűz miatt leáll), kéregetés néhány centért.
 - Jani sötétkék Ducatója és a sárgazsák-napi üldözős pálya.
 - Kéregetés, halastavi rabsickodás, további ellenfelek (kóbor kutya, konkurens gyűjtő).
-- Sodrás mint dobófegyver (füstfelhő).

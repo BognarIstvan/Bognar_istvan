@@ -4,26 +4,26 @@ Leírás a zeneszerzőnek: milyen zene kell a játék egyes pályáihoz, képern
 
 ## A játékról
 
-A Csicsói kaland egy Mario-szerű, oldalnézetes ugrálós játék telefonra. Csicsóban (Číčov) játszódik, egy kis csallóközi faluban. A hős egy melegítős ork, aki kukákból és sörösrekeszekből palackokat gyűjt, a Jednotában visszaváltja őket, és csucsót (kitalált helyi bort) visz belőlük a Parlamentbe, a falu kiülőjébe.
+A Csicsói kaland egy Mario-szerű, oldalnézetes ugrálós játék telefonra. Csicsóban (Číčov) játszódik, egy kis csallóközi faluban. A hős egy melegítős ork, aki kukákból és sörösrekeszekből palackokat és csikkeket gyűjt. A palackokat darabonként 15 centért visszaváltja a Jednotában, csucsót (kitalált helyi bort) és cigipapírt vesz, a csikkekből sodrást készít, és a csucsót hazaviszi a Parlamentbe, a falu kiülőjébe. Egy műszak két pálya: oda a Jednotáig, vissza a Parlamentig.
 
 A grafika hibrid: a szereplők pixelesek, a háttér festett hatású. A zenében is ezt a kettősséget kérjük: chip hangzás és igazi falusi zenekar együtt. A humor kedves és önironikus, mint egy falusi búcsú zenekara, amelyik kicsit hamis. Soha nem gúnyolódó.
 
-Jelenleg az 1-1-es pálya játszható. A többi pálya tervezett: a leírásuk a hangulatot adja meg, a részletek még változhatnak. A játékban most még nincs zene. A lejátszást akkor kötjük be, amikor megérkeznek az első fájlok.
+Jelenleg az 1-1-es és az 1-2-es pálya játszható. A többi pálya tervezett: a leírásuk a hangulatot adja meg, a részletek még változhatnak. A játékban most még nincs zene. A lejátszást akkor kötjük be, amikor megérkeznek az első fájlok.
 
 ## Közös zenei nyelv
 
 - **Hangzás:** Chip (négyszög-, háromszög- és zajhang) a pixeles szereplőkhöz, igazi hangszerek a festett világhoz. Harmonika, bőgő, cimbalom, klarinét, brácsa, a komikus pillanatokban rezesbanda (tuba, trombita).
-- **Csucsó-motívum:** Egy rövid, 3–5 hangos, könnyen megjegyezhető dallam. Ötlet: két hang lefelé, mintha valaki azt kiáltaná, hogy „CSU-CSÓ!”. Visszatér a címlapon, az extra életnél, a pálya végén, a Jednota-beváltásnál, és mollban a játék végén.
+- **Csucsó-motívum:** Egy rövid, 3–5 hangos, könnyen megjegyezhető dallam. Ötlet: két hang lefelé, mintha valaki azt kiáltaná, hogy „CSU-CSÓ!”. Visszatér a címlapon, amikor csucsó kerül a szatyorba, a Parlamentnél a leadáskor, és teljes pompájában a győzelemnél.
 - **1. világ: A falu:** Napos, dúr, polka- és csárdás-lüktetés, a harmonika vezet.
 - **2. világ: A határ:** Vadabb, esti hangulat. Modális hangsorok (dór, fríg), cimbalom és klarinét.
 - **Eredetiség:** A népzenei ihletés jó, de a dallamok legyenek sajátok. Ne legyen felismerhető meglévő dal: se Mario-téma, se ismert népdal, se lakodalmas sláger.
 
 ## Sorrend: mi kell először
 
-1. 1-1 Parlament → Jednota: ez az egyetlen már játszható pálya.
+1. 1-1 Parlament → Jednota és 1-2 Jednota → Parlament: a két már játszható pálya.
 2. Címlap: a Parlament-téma, benne a Csucsó-motívum.
-3. Jinglek: karón kiabálók, pálya vége, életvesztés, +1 csucsó, Gyanús lötty és józanodás.
-4. Jednota-beváltás és játék vége.
+3. Jinglek: karón kiabálók, pálya vége, kidőlés, csatorna, csucsó a szatyorban, Gyanús lötty és józanodás.
+4. Jednota-bolt, Parlament-ülés, a határozat elfogadva és a holnap folytatod.
 5. A többi pálya abban a sorrendben, ahogy elkészülnek.
 
 ## Menük és jelenetek
@@ -61,25 +61,47 @@ Séta a falun és a határon át pályáról pályára. Ugyanaz a dallam két ha
 - **Hangszerek:** harmonika vagy cimbalom, chip kíséret, léptek ritmusa
 - **Hossz:** 40–60 mp-es hurok
 
-### Jednota: beváltás
+### Jednota: a bolt
 
 *Állapot: kell most · Fájl: `zene/jednota`*
 
-A pálya végén a visszaváltó automata palackokat számol, és minden 5 palackért ad egy csucsót. Gépies, pittyegő, pénztárgép-hangulat. A végén a Csucsó-motívum szól.
+Az 1-1 végén a boltban vagy. Az automata pittyegve számolja a palackokat, aztán vásárolsz: csucsó, cigipapír, nagy szatyor. Gépies, pénztárgépes, kicsit vidám bolti háttérzene.
 
 - **Tempó:** kb. 120 BPM
 - **Hangnem:** C-dúr
-- **Hangszerek:** chip arpeggio, pénztárgép-csörrenés, harmonika a végén
-- **Hossz:** 2–3 mp nyitás + rövid hurok, amíg a számolás tart
+- **Hangszerek:** chip arpeggio, pénztárgép-csörrenés, harmonika
+- **Hossz:** 30–45 mp-es hurok
 
-### Vége a műszaknak (játék vége)
+### Parlament: az ülés
 
-*Állapot: kell most · Fájl: `zene/vege`*
+*Állapot: kell most · Fájl: `zene/parlament`*
 
-Elfogyott a csucsó. Szomorkás, de vicces, lefelé kanyarodó harmonika, a Csucsó-motívum mollban.
+Az 1-2 végén a Parlament kiülőjénél. Leadod a csucsót, sodrást készítesz, pihensz. Laza, bölcselkedő kocsmai hangulat, a címlap Parlament-témájának csendesebb változata.
+
+- **Tempó:** kb. 84 BPM, swing
+- **Hangnem:** F-dúr
+- **Hangszerek:** harmonika, bőgő, kefés dob
+- **Hossz:** 30–45 mp-es hurok
+
+### A határozat elfogadva (győzelem)
+
+*Állapot: kell most · Fájl: `zene/hatarozat`*
+
+Megvan a három csucsó, az ülés határozatképes. Ünnepélyes, pöffeszkedő fanfár, mintha parlamenti himnusz volna, benne a Csucsó-motívum.
+
+- **Tempó:** —
+- **Hangnem:** F-dúr
+- **Hangszerek:** rezesbanda, harmonika, chip
+- **Hossz:** 6–10 mp, nem ismétlődik
+
+### Holnap folytatod
+
+*Állapot: kell most · Fájl: `zene/holnap`*
+
+A műszak véget ért, de még nincs meg a három csucsó. Kicsit csalódott, de reménykedő, lefelé ballagó harmonika.
 
 - **Tempó:** lassú
-- **Hangnem:** d-moll
+- **Hangnem:** d-moll → F-dúr
 - **Hangszerek:** harmonika, bőgő
 - **Hossz:** 4–6 mp, nem ismétlődik
 
@@ -89,34 +111,56 @@ Elfogyott a csucsó. Szomorkás, de vicces, lefelé kanyarodó harmonika, a Csuc
 
 *Állapot: kell most · Fájl: `zene/palya-vege`*
 
-Az ork belép a Jednota ajtaján. Győzelmi fanfár a Csucsó-motívummal, rezesbandás csattanóval.
+Az ork belép a Jednota ajtaján, vagy leül a Parlamentnél. Rövid, vidám fanfár, rezesbandás csattanóval.
 
 - **Tempó:** —
 - **Hangnem:** a pályazene hangneme
 - **Hangszerek:** chip + rezesbanda
 - **Hossz:** 4–6 mp
 
-### Életvesztés
+### Kidőlés
 
-*Állapot: kell most · Fájl: `zene/eletvesztes`*
+*Állapot: kell most · Fájl: `zene/kidoles`*
 
-Vaddisznó vagy csatorna. Rövid, komikus lefelé csúszás, mint egy leeresztett duda.
+Elfogyott az erőnlét: az ork kidől, és a legutóbbi artézi kútnál tér magához. Rövid, komikus lefelé csúszás, mint egy leeresztett duda.
 
 - **Tempó:** —
 - **Hangnem:** —
 - **Hangszerek:** chip, esetleg harmonika-nyekergés
 - **Hossz:** 2–3 mp
 
-### +1 csucsó (extra élet)
+### Csatornába esés
+
+*Állapot: kell most · Fájl: `zene/csatorna`*
+
+Csobbanás, utána egy bosszús, rövid dallam.
+
+- **Tempó:** —
+- **Hangnem:** —
+- **Hangszerek:** vízhang, chip
+- **Hossz:** 1–2 mp
+
+### Csucsó a szatyorban
 
 *Állapot: kell most · Fájl: `zene/csucso`*
 
-Koccintás, üvegcsengés, utána a Csucsó-motívum gyorsan.
+Amikor csucsót veszel a Jednotában, vagy rejtett rekeszben találsz egyet. Üvegcsengés, utána a Csucsó-motívum gyorsan.
 
 - **Tempó:** —
 - **Hangnem:** —
 - **Hangszerek:** üvegcsengés + chip
 - **Hossz:** kb. 1,5 mp
+
+### Sodrás és füst
+
+*Állapot: nem kötelező · Fájl: `zene/sodras`*
+
+Sodrás készül a Parlamentnél, vagy elszívod füstnek, ami elkábítja a vaddisznót. Lusta, pöfékelő, szaxofonos kis motívum.
+
+- **Tempó:** —
+- **Hangnem:** —
+- **Hangszerek:** szaxofon vagy klarinét, chip
+- **Hossz:** kb. 2 mp
 
 ### Gyanús lötty (orkerő)
 
@@ -157,18 +201,18 @@ Vasárnap a pálya elején egyszer megszólal a templomharang, mielőtt a pálya
 
 *Állapot: játszható · Fájl: `zene/1-1`*
 
-Az első és legfontosabb pálya dallama: ezt fogja mindenki fütyülni. Indul a műszak a Parlament kiülőtől. A falu utcáin kukák, sörösrekeszek, buszmegálló, egy csatorna és vaddisznók. Közben az artézi kút (ellenőrzőpont), a végén a Jednota. Lendületes, vidám, előre hajtó.
+Az első és legfontosabb pálya dallama: ezt fogja mindenki fütyülni. Indul a műszak a Parlament kiülőtől, a cél a Jednota, ahol a palackokból csucsó lesz. A falu utcáin kukák, sörösrekeszek, buszmegálló, egy csatorna és vaddisznók. Közben az artézi kút (ellenőrzőpont), a végén a Jednota. Lendületes, vidám, előre hajtó.
 
 - **Tempó:** kb. 132 BPM, polka-lüktetés
 - **Hangnem:** C- vagy D-dúr
 - **Hangszerek:** chip dallam, harmonika, bőgő, dob
 - **Hossz:** 60–90 mp-es hurok, A és B résszel
 
-### 1-2 Főtér és iskola
+### 1-2 Jednota → Parlament
 
-*Állapot: tervezett · Fájl: `zene/1-2`*
+*Állapot: játszható · Fájl: `zene/1-2`*
 
-Nyüzsgés a Főtéren, szemben az iskola. Sok kuka, és egy konkurens gyűjtő ork versenyez veled értük. Kicsit sietős, lökdösődő. Az iskolacsengő lehet egy visszatérő motívum.
+A visszaút a csucsóval a Főtéren át. Nyüzsgés, sok kuka és csikk, szarkák, vaddisznók, szemben az iskola. Lehet az 1-1 dallamának változata, fordított irányban hazafelé: kicsit sietősebb, óvatosabb, hiszen most már értékes a szatyor tartalma. Az iskolacsengő lehet egy visszatérő motívum.
 
 - **Tempó:** kb. 140 BPM
 - **Hangnem:** F-dúr

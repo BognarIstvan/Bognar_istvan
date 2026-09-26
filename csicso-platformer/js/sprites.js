@@ -40,9 +40,13 @@
     fruit: ['...kD...', '..kkkk..', '.kaaaAk.', 'kaaAaaak', 'kaaaaaak', 'kaaaaMak', '.kaaaak.', '..kkkk..'],
     sack: ['.....kk.......', '....kYYk......', '.....kk.......', '....kZZk......', '...kZZZZk.....', '..kZZZZZZk....', '.kZZYZZZZZk...', 'kZZZYZZZZZZk..', 'kZZZZZZZZYZk..', 'kZZZZZZZZZZk..', 'kZZZZZZZZZZk..', 'kZZZZZZZZZZk..', '.kZZZZZZZZk...', '..kkkkkkkk....'],
     handBag: ['.k.k...', 'k.k.k..', 'kccccK.', 'kcccccK', 'kceeecK', 'kcecccK', 'kceeecK', 'kcccccK', '.kkkkk.'],
+    bigBag: ['..k..k...', '.k.kk.k..', 'kkkkkkkkK', 'kcccccccK', 'kcceeeccK', 'kceccceck', 'kcccccecK', 'kceccceck', 'kcceeeccK', 'kcccccccK', '.kkkkkkk.'],
+    butt: ['kkkkkkkk', 'kAAccccn', 'kkkkkkkk'],
+    paper: ['kkkkkkk.', 'knnnnnnk', 'knnnnnnk', 'kWWWWWWk', 'knnnnnnk', '.kkkkkkk'],
+    cig: ['kkkkkkkkkk.', 'kAAcccccccok', 'kkkkkkkkkk.'],
   };
   ITEMS.csucso = ITEMS.csucso.map(r => r.replace(/K/g, 'k'));
-  ITEMS.handBag = ITEMS.handBag.map(r => r.replace(/K/g, 'k'));
+  for (const k of ['handBag', 'bigBag']) ITEMS[k] = ITEMS[k].map(r => r.replace(/K/g, 'k'));
 
   // 3×5-ös pontbetűk a lebegő számokhoz és a táblákhoz.
   const FONT = {
