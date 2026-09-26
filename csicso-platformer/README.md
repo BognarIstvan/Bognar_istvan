@@ -47,6 +47,7 @@ A címlapon választható, milyen nap van; minden újrakezdés a következő nap
 - `js/backgrounds.js` – a kóddal rajzolt festett hátterek, és a generált képek betöltése.
 - `js/render.js`, `js/audio.js`, `js/main.js` – kirajzolás, hangok, vezérlés és menük.
 - `hatter/` – ide jönnek a generált háttérképek. Lásd **HATTEREK.md**.
+- `zene/` – ide jönnek a zenék. A zeneszerzőnek szóló leírás: **ZENE.md**.
 - `assets/parlament-concept.png` – a festett látványterv (nyitóképernyő).
 
 ## Ellenőrzés
