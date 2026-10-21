@@ -37,6 +37,30 @@ Indok: hamarabb van eladható termék és próbavágás, és a hajó második fe
 - Ha a hajó kézzel szerkesztett FreeCAD-dokumentum, nem szkript: a 4-5. lépés helyett a 3D testet adatként kell átmenteni, és a lépéseket újraírni.
 - A döntésnapló csak annyit ér, amennyit a Codex még tud a saját döntéseiről.
 
+## A `lezerhajo` tárolóra szabva (2026-10-21)
+
+A tároló átnézése után. Állapot: a kalózhajó 115 mm-es középszakasza (v06, 26 alkatrész), az illesztési recept fizikailag igazolva, a v06 teljes összeállítása még nem.
+
+### Amit a kód mutat
+
+- **Verziólánc, nem generátor.** Minden változat az előző mentett állapotára épül: a v06 `build_tabs.py` a v05 mentett FreeCAD-fájlját nyitja meg, a `prepare_tools.py` a v02 exportálóját kb. húsz szövegcserével alakítja v06-tá, és a v02/v04 függvényeit is betölti. Ezért nem törölhetők a régi mappák, és ezért üres a HAJÓ réteg a v06-ban.
+- **A hajótest szabálya megvan, csak nem a v06-ban.** `cad/pirate_ship_v14/hull_geometry.py` (85 sor): a hajótest három táblázatból áll (`STATIONS` fél-szélesség, `BOTTOM` fenékvonal, `SHEER` fedélzetvonal a hossz mentén), a függvények ezekből számolnak pontot, normált, metszetet. A táblázatok a modellleírás, a függvények a HAJÓ réteg csírája.
+- **A legértékesebb, megfizetett tudás a fizikailag igazolt illesztési recept** (`DONTESNAPLO.md`): 3,15-3,20 mm lemez, 2,95 mm rés, 12 mm csaphoz 11,60 mm fogadó, levehető tartónál 3,15 mm, a korrekció a fogadó oldalra kerül, gépi eltolás 0.
+
+### Pontosítás az A úton
+
+A „hajó befejezése” a v06 középszakasz fizikai igazolását jelenti (LightBurn-előnézet, száraz összeállítás), új kód nélkül. Az orr és a tat már ne v07, v08 láncszemként készüljön: az új hajótest-alak éppen az, amire a láncban nincs szabály, így minden új szakasz egy újabb láncszemet adna a legdrágább ponton. Az átszervezés helye: a középszakasz igazolása után, az orr és a tat előtt.
+
+### A 4-6. lépés erre a kódra
+
+| # | Mi | Konkrétan | Próba |
+|---|---|---|---|
+| 4 | Lánc lezárása | A v06 minden bemenete (v05 FreeCAD-fájl, `side_geometry.json`, `panels.json`, a v02/v04 függvények) a v06 mellé kerül; `prepare_tools.py` kimarad a buildből; a v06 nem nyúl régi mappába. | SVG SHA-256 = `78d1d300...5415` |
+| 5 | Mag kiemelése | `shrink_opening`, `serialize`, lapra rendezés 5,9 mm-es közellenőrzéssel, SVG-írás színrétegekkel, `verify_saved_svg`, kiterítés (`relax`), bemetszésminta. A recept egy **anyagprofil**-fájlba kerül (új lemeztételnél csak ez változik). Az alkatrész-azonosítókhoz kötött elvárások (pl. furatszám alkatrészenként) és a 0,1 mm²-es szálkalyuk-küszöb paraméterként a modellleírásba. | SVG SHA-256 változatlan |
+| 6 | Hajó építési mód | `hull_geometry.py` (v14) alapján: hajótest-táblázatok → bordák, gerincfésű, fedélzet, burkolati sávok. Első feladata a v06 középszakasz újragenerálása a táblázatokból. | **Tűréses összevetés**: az alkatrész-kontúrok 0,01 mm-en belül egyeznek a referenciával (új számítási út, bájtegyezés nem várható) |
+
+A 6. lépés után az orr és a tat már új táblázatsor és beállítás, nem új változatmappa.
+
 ## Codex-szövegek
 
 ### 1. Rögzítés (egyszeri feladat, bemásolandó)
