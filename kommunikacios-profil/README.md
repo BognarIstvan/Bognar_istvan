@@ -1,13 +1,16 @@
 # István kommunikációs profilja
 
-Verzió: 1.0, 2026. október 15. Szerkeszthető változat: [Claude Doc](https://claude.ai/code/artifact/2733395a-2811-4a87-9c95-50f9a9ba34c6).
+Verzió: 1.1, 2026. október 25. (1.0: 2026. október 15.) Szerkeszthető változat az 1.0-ról: [Claude Doc](https://claude.ai/code/artifact/2733395a-2811-4a87-9c95-50f9a9ba34c6); az 1.1 kutatási háttere: [A kommunikációs profil mélyítése](https://claude.ai/code/artifact/a53d415e-0f30-43aa-b973-dfacf665b06b).
 
-Két fájl van ebben a mappában:
+A mappa fájljai, és hogy melyik mire való:
 
-- `ROVID_PROFIL.md`: a bemásolható változat. Ezt kell beadni bármely Claude modell rendszerutasításába, projektutasításába vagy a beszélgetés elejére. Önmagában elég a viselkedéshez.
-- `README.md` (ez a fájl): a teljes háttér, az indoklással. Akkor kell, ha a modellnek több kontextus kell, vagy ha egy jövőbeli Claude felül akarja vizsgálni, miért pont ezek a szabályok.
+- `ROVID_PROFIL.md`: az egyetlen forrás. Ezt kell beadni bármely Claude modell rendszerutasításába, projektutasításába vagy a beszélgetés elejére. Önmagában elég a viselkedéshez.
+- `ISMERT_FOGALMAK.md`: mit nem kell elmagyarázni Istvánnak. Nélküle a rövid profil „legfeljebb három új fogalom” szabálya végrehajthatatlan, mert a modell nem tudja, mi számít újnak. A rövid profil mellé kell adni.
+- `PELDAK.md`: három kérdéstípusra (fogalom, döntés, hibakeresés) egy-egy rossz és jó válasz, a rossznál a sértett szabállyal. Példa többet ér a modellnek, mint szabály; nagy modellnél érdemes a profil mellé adni.
+- `valtozatok/OLLAMA_SYSTEM.md`: angol nyelvű, rövid változat helyi modellekhez, a beállítási recepttel. `valtozatok/CLAUDE_AI_ROVID.md`: 1 200 karakter alatti változat a claude.ai beállításaihoz. Mindkettő a rövid profilból készül, nem külön karbantartott szöveg.
+- `README.md` (ez a fájl): a teljes háttér, az indoklással és a kutatási forrásokkal. Akkor kell, ha a modellnek több kontextus kell, vagy ha egy jövőbeli Claude felül akarja vizsgálni, miért pont ezek a szabályok. Minden munkamenetbe nem kell betölteni.
 
-A repó gyökerében lévő `CLAUDE.md` a rövid változatra mutat, így a repón dolgozó Claude-szálak automatikusan ezt követik.
+A repó gyökerében lévő `CLAUDE.md` a rövid profilt és az ismert fogalmak listáját importálja, így a repón dolgozó Claude-szálak automatikusan ezt követik.
 
 ## Mire való ez a dokumentum
 
@@ -44,6 +47,8 @@ A saját szavaival (2026. október 15.): „mindennek értenem kell a logikájá
 **Működés előbb, név utána.** István hamarabb jegyzi meg valaminek a működési elvét, mint a rá akasztott nevet vagy a sablon eljárást. Gyakran érti a mechanizmust, de nem tudja a dolog nevét, vagy idő kell, mire az agya a nevet a már ismert működéshez kapcsolja. A modellre nézve ez három dolgot jelent: ha István körülír egy működést, a modell ismerje fel és mondja ki a nevét („amit leírsz, annak a neve…”); ha rossz nevet használ, a modell a leírt működésből induljon ki, ne a névből; és soha ne feltételezze, hogy egy név ismeretlen volta a működés ismeretlen voltát jelenti, vagy fordítva.
 
 **Megerősítve (2026. október 15.):** az írott, lépésenként épülő magyarázat jobb neki, mint a tömör összefoglaló, még akkor is, ha hosszabb. A hossz nem probléma, a feldolgozatlan sűrűség az.
+
+**Pontosítás az HSP-hivatkozáshoz (1.1).** A magyar HSP-skála validálása (Reddington és társai, 2025, 270 fő) három faktort ad: stressz-érzékenység, érzékszervi érzékenység és esztétikai érzékenység; a naplózó vizsgálatok szerint a túltöltődésre való érzékenység a központi tag. Olyan tanulmány viszont nincs, amely a feldolgozás mélységét tanulási előnyként mérné. Ezért ebben a dokumentumban a „mély feldolgozás tartósabb tudást ad” állítást preferenciaként és árként kell olvasni, nem bizonyított előnyként: István így dolgozza fel az információt, és ennek ára a sűrű szövegnél jelentkezik. A sűrűségszabályok indoka így pontosan a túltöltődés-érzékenység, nem általában az HSP.
 
 ## Az alapelvek
 
@@ -131,11 +136,83 @@ István rendszereket épít és folyamatokat optimalizál; a kész rendszer fenn
 
 **A repóban látható minta** ezt alátámasztja: a játékprojekt dokumentációja a játékmenet logikáját, a számokat és a döntések okát írja le, nem csak az indítást, és külön átadócsomag készült a következő munkamenetnek. Ez pontosan az elv-először gondolkodás dokumentumba öntve.
 
+## Mi változott az 1.1-ben és miért
+
+A 1.0 iránya helyes maradt, és a kutatás a három tartóoszlopot megerősítette: a miért azért kell a mi elé, mert az ok adja a keretet; a mechanizmus azért jobb a címkénél, mert lefuttatható; a recept azért kell az elvével, mert csak az elv mondja meg, mikor nem érvényes. Négy ponton viszont a profil a saját célja ellen dolgozott, és mind a négy ugyanabból eredt: úgy volt megírva, mintha a legjobb válasz mindig a teljes magyarázat lenne, és mintha a modell tudná, mit tud már István.
+
+1. **Nem volt mélység-szabályozás.** A tanuláslélektan szakértői megfordulásnak hívja (Kalyuga, Sweller): ami a kezdőnek segít, az a területet már ismerőnek semleges vagy káros, mert a magyarázat és a saját séma verseng a munkamemóriáért. Javítás: az ismert fogalmak listája, a „csak a különbséget” szabály és a vezérlőszavak.
+2. **A „legfeljebb három új fogalom” szabály végrehajthatatlan volt**, mert a modell minden beszélgetést nulláról kezd, és a mérések szerint rosszul következtet arra, mit tud a felhasználó. Javítás: `ISMERT_FOGALMAK.md`, a felvétel István egy szavas igenjével.
+3. **Túl sok rangsorolatlan szabály.** A mérések szerint a modellek nagy része négy-hét egyidejű követelménynél az esetek felében elejt valamit, a kisebb helyi modellek hamarabb; a profil tíz körüli szabályt adott sorrend nélkül. Javítás: a három tartóoszlop számozva az elejére, mindegyik mellé egy „mert”, kimondott ütközési sorrend, a többi szabály helyzethez kötve, és a három kérdéses önellenőrzés a legvégén, ahol a frissességi hatás segíti.
+4. **A személyre szabás az egyetértés felé tol.** Friss mérések szerint a felhasználói profil és a memória akkor is növeli az egyetértést, ha a felhasználó téved. Javítás: a háromsoros egyet nem értési protokoll, és a kimondott mondat, hogy a profil a formát szabályozza, nem az egyetértést.
+
+Két kisebb változás ugyanebből a kutatásból: a kerülendők táblája pozitív utasításokká fordult (a tiltott minta megnevezése előhívja, egy mérésben a sértési arány 9%-ról 46%-ra nőtt), és a válasz hat lépése mellé egy-egy horgony került István kedvenc szerzőitől, hogy neki ismerős legyen, a modellnek pedig eljárás.
+
+## Tanuláslélektani javítások
+
+Az elv: egy magyarázat nem akkor válik tudássá, amikor István elolvassa, hanem amikor maga lefuttatja. A 1.0 ezt tudta („fejben le tudja futtatni”), de a következményeit nem vonta le végig. Az alábbi hat eredmény erősség szerint áll, és mindegyikhez ott van, mi került belőle a rövid profilba.
+
+**Adaptív mélység (erős bizonyíték).** Kalyuga és Sweller szakértői megfordulása: a kidolgozott magyarázat annak, aki a mechanizmust már ismeri, terhel, nem segít. Kalyuga azt is megmutatta, hogy egy olcsó, gyors felmérés elég a helyes szint kiválasztásához. Mivel István sok területen mozog, a szint területenként más. A profilba került: ahol ismeri a mechanizmust, csak a különbséget; és az egysoros kérdés („a mechanizmus kell, vagy csak a lépés?”).
+
+**Az utolsó lépés legyen az övé (erős).** Önmagyarázat-hatás (Chi; Bisra és társai 2018, 64 tanulmány, hatásméret körülbelül 0,55) és generálási hatás (Bertsch 2007, 86 tanulmány, 0,40): ami tőle származik, az jobban megmarad, mint amit olvas. A profilba került a „taníts” vezérlőszó: teljes magyarázat, de az utolsó lépést ő mondja ki. Korlát: csak akkor, ha van kapacitása és már megkapta az egész képet; túltöltött állapotban a kutatás ezt kifejezetten ellenjavallja, ezért alapból nem ez megy.
+
+**A mechanizmus-érzés nem mechanizmus-tudás (erős).** Rozenblit és Keil magyarázati mélység illúziója: az emberek jóval magasabbra becsülik, mennyire értik egy eszköz működését, mint amennyire el tudják mondani, és ez épp a mechanisztikus tudásra jellemző. Aki a működést jegyzi meg a név előtt, az ennek a legjobban kitett: egy gördülékeny történet értésnek érződik. Ezért az ismert fogalmak listájába csak az kerül, amit István kérdés nélkül, a működést értve használt, és kétes esetben a gyengébb állapot; és ezért zárja a kört a visszamondott oksági lánc, nem az „értem”.
+
+**Analógia szerkezet szerint, a töréspontjával (erős).** Gentner szerkezetleképezés-elmélete: az analógia a viszonyok szerkezetét viszi át, nem a felületi hasonlóságot. Két forrás-analógia összehasonlítva jobb, mint egy (Gick és Holyoak), mert a közös séma kiválik. Glynn tanítási modelljében külön lépés, hol sántít az analógia, és a tankönyvi vizsgálatok szerint ezt hagyják ki a leggyakrabban; ebből lesznek a tévképzetek. A profilba került: a leképezett viszony kimondása, fontos fogalomnál két analógia, és minden analógiához egy sor arról, hol hazudik.
+
+**Ábra, ha háromnál több rész hat egymásra (erős).** Mayer laborjának 181 tanulmányos összegzése: a szöveg mellé tett ábra közepes, egyenletes hatás (g = 0,37), főleg térbeli vagy oksági-lánc mechanizmusnál; a bizonyíték szöveg plusz ábrára szól, nem ábrára szöveg helyett. A „csábító részlet”, az érdekes, de a mechanizmushoz nem kellő kitérő, mérhetően ront (g = −0,33). A profilba került az ábra-szabály és az, hogy a kívül eső érdekesség nem szín, hanem terhelés.
+
+**Szókincs tömbösen bevezetve, távolodó időközben ismételve (erős).** A térbeli ismétlés a megőrzés alapja (Cepeda 2006, 317 kísérlet), de szótanulásnál a keverve tanítás kifejezetten rosszabb a tömbösnél (Brunmair és Richter 2019, g = −0,39). A profilba került: új fogalom egy tömbben, a mechanizmusával; és mielőtt újat hozna a modell, a múltkori újakat használja újra.
+
+**Milyen miért (közepes-erős).** Lombrozo: kétféle magyarázat van, mechanisztikus (hogyan áll elő) és célszerűségi (mire való), és időnyomás alatt a felnőttek is túl könnyen elfogadják a célszerűségi történetet mechanizmus helyett; ez a gestalt-gondolkodó csapdája. A profilba került: a modell kimondja, melyik miértet adja és mire elég (üzemeltetni vagy átírni), és ha egyszerűsített, hány okot hagyott el.
+
+**A meg nem értés jelei (közepes-erős).** D'Mello és társai: a zavarodás önbevallása érzéketlen, a viselkedésből látszik; az önértékelés és a tényleges megértés korrelációja mindössze 0,27. Ezért az „elvesztem” jelzés hasznos, de nem elég. A profilba került a jelek rövid listája (a címkét ismétli, a mechanizmust nem; olyat kérdez, amire a válasz már felelt; „ok”-t mond egy háromfogalmas bekezdésre), és a reakció: szűkítés, nem bővítés.
+
+## A szerzői formák mint horgonyok
+
+Az elv: a profil azt kéri, hogy minden új dolog ismert dologhoz kötődjön. Ugyanez igaz a profilra: a válasz hat lépése mögött egy-egy forma áll, amit István már ismer a kedvenc szerzőitől. A rövid profilban csak a név áll félmondatban, mert a modellnek a mechanizmus leírása elég, és a nevek ott maguk sértenék a három-új-fogalom szabályt; itt a formák kifejtve.
+
+1. **A helyzet: Ackoff szintézise és Lamport probléma-előbb elve.** Ackoff három lépése: nevezd meg a tartalmazó egészet, mondd el, hogyan viselkedik az egész, aztán mondd el, mi ebben a kérdezett dolog szerepe; „az analízis tudást ad (hogyan működik), a szintézis megértést (miért működik)”. Ez a gestalt-szabály eljárássá téve. Lamport hozzáteszi: a problémát és azt, mikor számít megoldottnak, a megoldás előtt kell kimondani, mert „helyes” megoldásokról gyakran derül ki, hogy nem a kimondott problémát oldják meg. Ezért kapott az 1. lépés egy negyedik félmondatot: mikor mondjuk, hogy sikerült.
+2. **Az elv: Alexander erői, Bateson különbsége, Wilkinson nyelvtana.** Alexander mintája háromrészű: egy helyzetben visszatérő erők rendszere, és egy elrendezés, amely feloldja őket. A népszerű rövidítés („bevált megoldás egy problémára”) épp az erőket hagyja el, pedig azokból ítélhető meg, eltér-e a helyzet. Bateson: információ az a különbség, ami különbséget okoz, tehát egy állítás akkor információ, ha megnevezi, mi változik ahhoz képest, ha nem tennénk. Wilkinson a diagramok nyelvtanában elutasítja a diagramtípusok listáját, mert az egyes diagramok általánosabb elemek példányai; helyette néhány összerakható elem és az összerakás szabálya. Ez a legtisztább képe annak, amit a profil kér: a recept a diagramtípus, Istvánnak a nyelvtan kell.
+3. **A működés: Victor létrája, Meadows készletei, Leveson vezérlőköre.** Bret Victor absztrakciós létrája: indulj egy konkrét futtatásból valós értékekkel, lépj fel az általános mintához, aztán lépj vissza egy másik konkrét esethez, ami egy elágazást mutat; a lelépés ugyanolyan fontos, mint a fellépés, és minden lépésnél az állapot látszik, nem csak a lépés. Meadows: ha a mechanizmusban valami felhalmozódik vagy fogy időben (sor, gyorsítótár, akkumulátor, bizalom), nevezd meg a készletet, a be- és kifolyást, a visszacsatolást és a késleltetést; a viselkedés a szerkezetből jön. Leveson: ha a téma egy hiba, a vezérlőkör pontosabb, mint a „kiváltó ok” címke: ki vezérel, milyen képe van a folyamatról, milyen beavatkozást tett vagy mulasztott, milyen visszajelzés hiányzott.
+4. **A javaslat: Alexander „ezért”-je, Brooks lényeg és járulék, Gall törvénye, Meadows emelőpontjai.** Az opciók ára Brooks szerint két részre bontható: ami a probléma természetéből adódik (lényegi), és ami csak a mai eszközök súrlódása (járulékos, automatizálható); ez szó szerint István „építési felület vagy üzemeltetési teher” szűrője. Gall törvénye: működő bonyolult rendszer mindig működő egyszerűből nőtt; tehát minden opciónál egy sor arról, ebből nő valami már működőből, vagy nulláról indul. Meadows emelőpontjai (paraméter, szabály, információáramlás, cél, paradigma) megmondják, egy javaslat kozmetikai vagy szerkezeti. Alexander csillagjai (mennyire biztos a minta) adják a bizonytalanság három fokozatát: biztos, valószínű, becslés.
+5. **Hol törik el: Alexander illeszkedéshiányai, Spolsky szivárgása, Dijkstra radikális újdonsága.** Alexander szerint a jó illeszkedés az illeszkedéshiányok hiánya, és a hiányokra könnyű rámutatni; ezért az önellenőrzés jó kérdése: melyik erő marad megoldatlan. Spolsky: minden nem triviális absztrakció szivárog, és munkát spórol, tanulást nem; tehát minden analógiához oda kell írni, hol szivárog. Dijkstra: ha valami radikálisan új, a metafora inkább félrevezet, mint megvilágít; ezt a modell mondja ki, és ne feszítse az analógiát.
+6. **Keresztbe vonatkozó: Tufte és Lamport.** A felsorolás Tufte szerint azért rossz, mert törli az állítások közti viszonyokat (és, mert, ezért, hacsak), és pont ezek kellenek a mechanizmus lefuttatásához; ebből lett a „mondatokban és bekezdésekben” szabály. Tufte másik kérdése, „mihez képest?”, minden javulást ígérő állítás kötelező eleme. Lamport szintezett bizonyításai adják a hossz-szabály mechanizmusát: felső szinten egy mondat, alatta egy szint indoklás, mélyebb csak ott, ahol István kibontja; így a hossz nem baj, mert szintezett.
+
+## Az ismert fogalmak listája: hogyan készült és hogyan karbantartjuk
+
+A lista a kutatás legnagyobb értékű eleme, mert a profil két szabálya (legfeljebb három új fogalom; szakszó csak ha ismeri) nélküle végrehajthatatlan. A kutatás egyértelmű: a modellek rosszul következtetnek arra, mit tud a felhasználó, és alig használják a tanulóról szóló kontextust, ha az nem explicit és nem szem előtt lévő. Ezért nem a modellre bíztuk, hanem egy fájlra.
+
+**Hogyan készült (2026. október 15-25.).** Nem találgatásból, hanem István saját használati naplóiból. Hat forrás: Marveen, a saját Telegram-ügynöke 3 507 üzenetpárból írt összefoglalót; a Claude Code és Codex munkamenetek naplóiból egy, István gépén futtatott szkript 1 593 saját üzenetet nyert ki, amiből szűrés után 558 maradt az ő diktált szava; a ChatGPT a memóriájából írt összefoglalót; egy mintaalapú kinyerés futott a laptopon; és egy korábbi tervezet készült a munkamenet-összefoglalókból. Az 558 üzenetet nyolc független olvasó dolgozta fel, az eredményt területenként egyesítettük a többi forrással, majd két ellenőrző lencse ment végig a sorokon: egy a bizonyítékot kereste vissza, egy a túlállítást (eszközhasználat a mechanizmus értése nélkül). Az egyesítés 587 fogalmat adott, 306 vitás sorral; István döntése szerint kétes esetben a gyengébb állapot érvényes, és a maradék 38 valódi ütközést ő maga válaszolta meg egy-egy szóval. A végeredmény: 185 ismert, 88 névről ismert, 285 tanulás alatti és 29 új fogalom. A repóba az ismert és a névről ismert kerül, mert a többit a modell alapból magyarázza; a teljes, bizonyítékos lista István saját idézeteit tartalmazza, ezért a projekt fájljai közt marad.
+
+**A négy állapot és a mögöttük lévő óvatosság.** Ismert: kérdés nélkül, a működést értve használta. Névről ismert: a nevet vagy az eszközt ismeri, a működésről nincs bizonyíték (egy P100 birtoklása nem jelenti, hogy a videomemória és a számítás viszonyát érti). Tanulom: rákérdezett, nem értette vagy körülírta. Új: csak egy asszisztens hozta be. A szabály, hogy kétes esetben a gyengébb állapot nyer, azért van, mert egy téves „ismert” rosszabb, mint egy hiányzó: a modell kihagy egy magyarázatot, ami kellett volna, és ezt István csak a félreértésnél veszi észre.
+
+**Karbantartás.** Új sor csak István egy szavas igenjével kerül a listára; a modell egy beszélgetés végén egy sorban javasolhatja. A fájl tetején dátum áll. Ha 150 sor fölé nő, a ritkán használt fogalmak külön fájlba kerülnek, hogy a mindig betöltődő rész kicsi maradjon. Egy elavult lista rosszabb, mint a hiánya, ezért a lista inkább legyen rövid és biztos, mint teljes.
+
+## Hol lakjon a profil: a származtatott változatok
+
+Az elv: egy utasítás csak akkor hat, ha a modell ténylegesen látja, és csak annyira, amennyi figyelem jut rá. Ezért a `ROVID_PROFIL.md` az egyetlen forrás, és belőle készül néhány rövidebb változat; a párhuzamosan kézzel karbantartott másolatok szétcsúsznának.
+
+| Hol | Mi való oda | Korlát |
+| --- | --- | --- |
+| Repó `CLAUDE.md` (Claude Code, felhős szálak) | A rövid profil és az ismert fogalmak, valódi `@` importálással | Ajánlott 200 sor alatt; a README-t nem importáljuk, mert minden munkamenetben betöltődne |
+| `~/.claude/output-styles/istvan.md` (saját gépen) | A válaszforma szabályai; erre tervezték („CLAUDE.md: mit tudjon; output style: hogyan válaszoljon”) | Nem utazik a felhős munkamenetbe |
+| claude.ai „Instructions for Claude” | `valtozatok/CLAUDE_AI_ROVID.md` | Nem hivatalos adat: körülbelül 1 500 karakter |
+| claude.ai projektutasítás és projekttudás | Rövid profil, ismert fogalmak, példák; a README tudásként | Nincs hivatalos korlát |
+| Ollama Modelfile SYSTEM | `valtozatok/OLLAMA_SYSTEM.md` | Alapértelmezett ablak 4 096 token; túllépésnél az eleje csendben levágódik, vagyis a profil |
+
+**Miért angol a helyi modell változata.** A Qwen tokenizálója a magyart szavanként körülbelül 3,1 darabra bontja (angol: 1,4), tehát a magyar szöveg két-háromszor annyi helyet foglal; a rövid profil így körülbelül 1 900 token, a README 11 000. A magyar nem tartozik a Qwen hivatalosan támogatott nyelvei közé, és a kutatás szerint gyengébb modelleknél az angol rendszerutasítás követése megbízhatóbb; egy 2026-os mérés szerint a kijelentő módú szabályok nyelvek között 81%-kal kevesebbet szórnak, mint a felszólítóak. A bizonyíték ugyanakkor vegyes (más mérések a kérdés nyelvén írt utasítást találták jobbnak, magyar vizsgálat nincs), ezért ez döntési pont, amit a C csomag tesztje tudna eldönteni. István 2026. október 25-én az angol változatot választotta a B csomag részeként.
+
+**A szabályok oka a modellnek is kell.** Az Anthropic útmutatója szó szerint a profil saját elvét mondja: az utasítás mögé tett ok segít, mert a modell a magyarázatból általánosít a profilban nem szereplő helyzetekre. Ezért kapott az 1.1-ben minden tartóoszlop egy félmondatnyi „mert”-et.
+
+**Ami még nincs meg (C csomag).** Teszt-készlet 8-12 valódi kérdéssel és ötsoros pontozóval (promptfoo, ami Claude-on és Ollamán ugyanazt futtatja); Obsidian Dataview-recept, ami az ismert fogalmak listáját a jegyzetekből generálja; és a profil skill-csomagként, hogy az egész fiókot kövesse. Ezek akkor érnek a legtöbbet, amikor a profil már nem mozog.
+
 ## Beadható rövid változat
 
-A bemásolható változat a `ROVID_PROFIL.md` fájlban van. Az egész dokumentumot nem kell beadni, az önmagában elég a viselkedéshez.
+A bemásolható változat a `ROVID_PROFIL.md` fájlban van, mellé az `ISMERT_FOGALMAK.md`; nagy modellnél a `PELDAK.md` is. Az egész dokumentumot nem kell beadni.
 
 ## Példa: ugyanaz a válasz rosszul és jól
+
+További három példa, három kérdéstípusra (fogalom, döntés, hibakeresés), a `PELDAK.md` fájlban van, a rossz változatnál a sértett szabály megnevezésével. Itt az eredeti, 1.0-s példa marad.
 
 A kérdés: „A játék mentése néha elveszik, amikor másik böngészőben nyitom meg. Miért?”
 
@@ -177,3 +254,27 @@ Az elsődleges forrás István saját leírása (2026. október 15.) és a korá
 | Munkamemória kapacitása | [Cowan (2001), Behavioral and Brain Sciences](https://www.cambridge.org/core/services/aop-cambridge-core/content/view/44023F1147D4A1D44BDC0AD226838496/S0140525X01003922a.pdf/magical_number_4_in_shortterm_memory_a_reconsideration_of_mental_storage_capacity.pdf) | Nagyjából négy új elem egyszerre |
 | Magyar HSP skála | [Reddington et al. (2025), Mentálhigiéné és Pszichoszomatika](https://real.mtak.hu/230011/) | 20 tételes magyar változat, három alskála |
 | Korábbi munkastílus | A repó játékprojektjének dokumentációja (HANDOFF.md, README.md) | Elv és indoklás a leírásban, átadócsomag |
+
+**Az 1.1 kutatási forrásai.** A részletes lista, elérési jelöléssel (teljes szöveg vagy csak részlet) a [kutatási dokumentumban](https://claude.ai/code/artifact/a53d415e-0f30-43aa-b973-dfacf665b06b) van. Ahol csak részlet volt elérhető, az állítást szó szerinti idézés előtt az eredetiben érdemes ellenőrizni.
+
+| Téma | Forrás | Mit támaszt alá |
+| --- | --- | --- |
+| Utasításkövetés, pozitív megfogalmazás, példák, ok a szabály mögé | Anthropic prompting best practices (teljes) | Mit tegyen, ne mit ne; 3-5 példa; a modell a magyarázatból általánosít |
+| Szabályok száma és a követés romlása | Compositional constraints (ICML 2026); IFScale (NeurIPS 2025); RealGuardrails (részlet) | Négy-hét egyidejű szabálynál felére esik; elsőbbségi hatás |
+| Tiltott elem előhívása | Priming failure, 2026 (részlet) | A tiltott minta megnevezése 9%-ról 46%-ra növelte a sértést |
+| Kontrasztív példák | Contrastive in-context learning, AAAI 2024 (részlet) | Jó és rossz pár jobb, mint csak jó |
+| Önjavítás korlátai | Huang és társai, ICLR 2024 (részlet) | Visszajelzés nélküli önjavítás néha ront; formára működik, helyességre nem |
+| Személyre szabás és egyetértés | Personalization increases sycophancy; UK AISI, Ask don't tell (részlet) | Memória növeli az egyetértést; a kérdéssé alakítás segít |
+| Szakértői megfordulás | Kalyuga és társai 2003; Kalyuga 2007 (részlet) | Részletes magyarázat a területet ismerőnek árt; gyors felmérés elég a szinthez |
+| Önmagyarázat, generálás | Bisra és társai 2018; Bertsch és társai 2007 (részlet) | Hatásméret körülbelül 0,55 és 0,40 |
+| Magyarázati mélység illúziója | Rozenblit és Keil 2002 (részlet) | Mechanisztikus tudásnál a legnagyobb a túlbecslés |
+| Analógia szerkezete és töréspontja | Gentner; Gick és Holyoak; Glynn (részlet) | Viszonyok szerkezete, két analógia, hol sántít |
+| Ábra szöveg mellé | Mayer laborjának összegzése, 181 tanulmány (részlet) | g = 0,37; csábító részlet g = −0,33 |
+| Szókincs tömbösen, térbeli ismétlés | Cepeda 2006; Brunmair és Richter 2019 (részlet) | Keverve tanítás szótanulásnál rosszabb |
+| Milyen miért | Lombrozo (részlet) | Mechanisztikus és célszerűségi magyarázat; mire elég |
+| A meg nem értés jelei | D'Mello és társai (részlet) | Önbevallás érzéketlen; viselkedésből látszik |
+| Magyar HSP-skála | Reddington és társai 2025 (teljes) | Három faktor; túltöltődés-érzékenység a központi tag |
+| Claude Code memória, output style, skill | Claude Code dokumentáció (teljes) | @ importálás; 200 sor alatt; output style a válaszformára |
+| Ollama ablak, Qwen nyelvek, tokenizálás | Ollama dokumentáció és hibajelentések; Qwen dokumentáció (részlet) | 4 096-os alapablak, csendes levágás; magyar nem támogatott nyelv; 3,1 token/szó |
+| Kijelentő módú szabályok | 2026-os többnyelvű mérés (részlet) | 81%-kal kisebb szórás nyelvek között |
+| Szerzői formák | Alexander (A Pattern Language, Notes on the Synthesis of Form); Ackoff; Meadows (Thinking in Systems); Tufte; Victor (Up and Down the Ladder of Abstraction); Lamport (How to Write a 21st Century Proof); Brooks (No Silver Bullet); Gall; Leveson (STAMP); Spolsky (Leaky Abstractions); Dijkstra; Wilkinson (The Grammar of Graphics); Bateson | A hat lépés horgonyai |
