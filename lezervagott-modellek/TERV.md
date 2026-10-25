@@ -115,3 +115,26 @@ A Codex minden munkamenet elején magától elolvassa az AGENTS.md fájlt, ezér
 ### 3. Később (a 4-7. lépéshez)
 
 A 4-7. lépés pontos tervét a leltár és a döntésnapló alapján érdemes megírni, a valódi kódra szabva. Ehhez a Codex-projektnek GitHubra kell kerülnie.
+
+## Állapot és eltérés a tervtől (2026-10-25)
+
+A `lezerhajo` tároló átnézése alapján (`d907184`).
+
+### Ami a terv szerint ment
+
+- A középszakasz fizikai igazolása kész: V07-V15, kilenc fizikai kör a burkolat rögzítésére (kampó, kisebb kampó, egyenes csap ragasztóval, letörés, pontos kiterítés, ívhossz-korrekció). A V15-öt István 2026-10-23-án elfogadta.
+- Az illesztési recept stabil maradt (2,95 mm rés, 12/11,60 mm csap), és bővült: 1 mm-es bevezető letörés, +0,50 mm felső fogadó-könnyítés, belső ívhosszból számolt kiterítés.
+- A kivétel alapú visszajelzés, a verziószámos rövid próbagerinc és a Marveen-féle, ellenőrzőösszeggel igazolt átadás a géphez jól működik.
+
+### Eltérés
+
+- Az átszervezés (4-6. lépés) elmaradt; az orr, a tat és a teljes hajó a verzióláncban épült tovább: EV01-EV02 orr- és tatpróba, FT01-FT08 teljes hajó (kb. 610 alkatrész). Az FT08 az FT07 mentett FreeCAD-fájlját nyitja meg.
+- A fizikailag igazolt rész a középszakasz 8 alkatrésze. Az EV02 orr- és tatpróba vágófájljai elkészültek, de nincs fizikai próba; az FT-részletek (kabin, ágyúk, árbócok, korlátok, orrdísz) csak digitálisan ellenőrzöttek.
+- A `referencia/` még a v06, amit a V15 már felváltott; a Codex minden körben újragenerálja.
+
+### Következő lépés és döntési szabály
+
+1. FT-részletmunka szünetel, amíg az orr és a tat fizikai próbája meg nem történik.
+2. A Codex összeveti az EV02 alkatrészeit az FT08 orr- és tatrészével; ha eltérnek, a mostani FT08 geometriából készül az új próba (EV03), saját rövid gerinccel.
+3. A referencia a V15 lesz.
+4. Az orr-tat próba után: ha a hajótest alakján vagy a burkolat módján nagyobb változtatás kell, előbb a hajótest kerül egy forrásba (átszervezés), csak utána a javítás. Ha csak kis igazítás kell, a lánc mehet tovább a hajó befejezéséig, és az átszervezés a második modell előtt jön.
